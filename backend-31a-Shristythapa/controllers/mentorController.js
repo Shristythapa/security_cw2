@@ -4,6 +4,28 @@ const bycrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { add } = require("date-fns");
 const nodemailer = require("nodemailer");
+const MentorPaswords = require("../model/passwordMentor");
+
+const validatePassword = (password) => {
+  const minLength = 8;
+  const maxLength = 12;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumbers = /[0-9]/.test(password);
+  const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+  if (
+    password.length >= minLength &&
+    password.length <= maxLength &&
+    hasUpperCase &&
+    hasLowerCase &&
+    hasNumbers &&
+    hasSpecialChars
+  ) {
+    return true;
+  }
+  return false;
+};
 
 const signUpMentor = async (req, res) => {
   const {
@@ -36,6 +58,15 @@ const signUpMentor = async (req, res) => {
       message: "Please enter all fields",
     });
   }
+  const isPasswordValid = validatePassword(password);
+  if (!isPasswordValid) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Password must be 8-12 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+    });
+  }
+
   if (!profilePicture) {
     return res.status(400).json({
       success: false,
@@ -77,7 +108,25 @@ const signUpMentor = async (req, res) => {
       profileUrl: uploadImage.secure_url,
     });
 
-    await newMentor.save();
+    // await newMentor.save();
+    
+ 
+    console.log(newMentor._id);
+    let passwordEntry = await MentorPaswords.findOne({
+      userId: newMentor._id,
+    });
+
+    if (passwordEntry) {
+      passwordEntry.passwords.push(encryptedPassword);
+    } else {
+      passwordEntry = new MentorPaswords({
+        userId: newMentor._id,
+        passwords: [encryptedPassword],
+      });
+    }
+
+    await passwordEntry.save();
+
     res.status(200).json({
       success: true,
       message: "User created successfully.",
@@ -263,7 +312,9 @@ const changePassword = async (req, res) => {
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
       } else {
-        return res.status(200).json({ success: true, message: "Password Changed" });
+        return res
+          .status(200)
+          .json({ success: true, message: "Password Changed" });
       }
     });
   });

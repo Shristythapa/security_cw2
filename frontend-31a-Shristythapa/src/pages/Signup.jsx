@@ -77,7 +77,7 @@ const Signup = () => {
           }
         })
         .catch((err) => {
-          toast.error("Server error");
+          toast.error(err.response.data.message);
           console.log(err.message);
         });
     } else if (role === "mentor") {

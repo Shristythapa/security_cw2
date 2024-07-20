@@ -1,8 +1,9 @@
 const router = require("express").Router();
 const mentorController = require("../controllers/mentorController");
+const { loginAccountLimiter } = require("../middleware/ratelimit");
 
 router.post("/signup", mentorController.signUpMentor);
-router.post("/login", mentorController.loginMentor);
+router.post("/login",loginAccountLimiter, mentorController.loginMentor);
 router.get("/getAllMentors", mentorController.getAllMentors);
 router.get("/getAllMentorsById", mentorController.getMentorById);
 router.get("/findByEmail/:email", mentorController.findByEmail);

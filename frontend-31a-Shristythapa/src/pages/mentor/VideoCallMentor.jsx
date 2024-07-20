@@ -202,7 +202,10 @@ const VideoCallMentor = () => {
           console.log("Navigation completed.");
         })
         .catch((error) => {
-          console.error("Error occurred while stopping tracks:", error);
+          console.error(
+            "Error occurred while stopping tracks:",
+            error.response.data.message
+          );
           // Handle the error if necessary
         });
     } else {

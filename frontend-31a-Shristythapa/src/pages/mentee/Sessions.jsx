@@ -55,14 +55,14 @@ const Sessions = () => {
               console.log("Camera turned off.");
             })
             .catch((error) => {
-              console.error("Error turning off camera:", error);
+              console.error("Error turning off camera:",  error.response.data.message);
             });
         } else {
           console.log("Camera is already off.");
         }
       })
       .catch((error) => {
-        console.error("Error accessing camera:", error);
+        console.error("Error accessing camera:", error.response.data.message);
       });
   }
 

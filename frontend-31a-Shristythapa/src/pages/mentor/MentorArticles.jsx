@@ -72,7 +72,8 @@ const MentorArticles = () => {
         }
       })
       .catch((err) => {
-        toast.error("Server error");
+        // toast.error("Server error");
+         toast.error(err.response.data.message);
         console.log(err.message);
       });
     getAllArticle().then((res) => {
@@ -125,7 +126,7 @@ const MentorArticles = () => {
         setArticles(filteredArticles);
         console.log(filteredArticles);
       } catch (error) {
-        console.error("Error fetching articles:", error);
+        console.error("Error fetching articles:",  error.response.data.message);
       }
     };
 

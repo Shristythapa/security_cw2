@@ -92,7 +92,8 @@ const MentorSessions = () => {
         }
       })
       .catch((err) => {
-        toast.error("Server error");
+        // toast.error("Server error");
+         toast.error(err.response.data.message);
         console.log(err.message);
       });
     getSessions();

@@ -4,6 +4,28 @@ const bycrypt = require("bcrypt");
 const cloudainary = require("cloudinary");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const MenteePaswords = require("../model/passwordMentee");
+
+const validatePassword = (password) => {
+  const minLength = 8;
+  const maxLength = 12;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumbers = /[0-9]/.test(password);
+  const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+  if (
+    password.length >= minLength &&
+    password.length <= maxLength &&
+    hasUpperCase &&
+    hasLowerCase &&
+    hasNumbers &&
+    hasSpecialChars
+  ) {
+    return true;
+  }
+  return false;
+};
 
 const signUpMentee = async (req, res) => {
   const { name, email, password } = req.body;
@@ -15,6 +37,16 @@ const signUpMentee = async (req, res) => {
       message: "Please enter all fields",
     });
   }
+
+  const isPasswordValid = validatePassword(password);
+  if (!isPasswordValid) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Password must be 8-12 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+    });
+  }
+
   if (!profilePicture) {
     return res.status(400).json({
       success: false,
@@ -51,7 +83,25 @@ const signUpMentee = async (req, res) => {
 
     await newMentee.save();
 
-    return res.status(200).json({
+    // Check if the mentee already exists in MenteePasswords collection
+    let passwordEntry = await MenteePaswords.findOne({
+      userId: newMentee._id,
+    });
+
+    if (passwordEntry) {
+      // If the entry exists, append the new password to the list
+      passwordEntry.passwords.push(encryptedPassword);
+    } else {
+      // If the entry does not exist, create a new one
+      passwordEntry = new MenteePaswords({
+        userId: newMentee._id,
+        passwords: [encryptedPassword],
+      });
+    }
+
+    await passwordEntry.save();
+    
+    json({
       success: true,
       message: "User created sucessfully.",
     });
@@ -64,8 +114,6 @@ const signUpMentee = async (req, res) => {
 };
 
 const loginMentee = async (req, res) => {
-
-
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -120,16 +168,19 @@ const changePassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({
+    return res.json({
       message: "Enter email",
       success: false,
+      status: 400,
     });
   }
   Mentees.findOne({ email: email }).then((user) => {
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: "User not existed", success: false });
+      return res.json({
+        message: "User not existed",
+        success: false,
+        status: 400,
+      });
     }
     const token = jwt.sign({ id: user._id }, "jwt_secret_key", {
       expiresIn: "1d",
