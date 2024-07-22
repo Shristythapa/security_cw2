@@ -8,12 +8,52 @@ import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 // ... (your existing imports)
 import sampleProfile from "../assets/img/dummyProfileImage.jfif";
+import { red } from "@mui/material/colors";
 const Signup = () => {
   const [role, setRole] = useState("");
   const [name, setName] = useState("Brunett");
   const [email, setEmail] = useState("brunett@gmail.com");
-  const [password, setPasword] = useState("brunett");
+  const [password, setPassword] = useState("");
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
 
+  const [criteria, setCriteria] = useState({
+    length: false,
+    upperCase: false,
+    lowerCase: false,
+    number: false,
+    specialChar: false,
+  });
+
+  const validatePassword = (password) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    setCriteria({
+      length: password.length >= minLength,
+      upperCase: hasUpperCase,
+      lowerCase: hasLowerCase,
+      number: hasNumber,
+      specialChar: hasSpecialChar,
+    });
+
+    // Set password validity
+    setIsPasswordValid(
+      password.length >= minLength &&
+        hasUpperCase &&
+        hasLowerCase &&
+        hasNumber &&
+        hasSpecialChar
+    );
+  };
+
+  const changePassword = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    validatePassword(newPassword);
+  };
   //make useState for image
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
@@ -40,20 +80,35 @@ const Signup = () => {
       },
     });
   };
+  const [isEmailValid, setIsEmailValid] = useState(true);
+
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
 
   const changeName = (e) => {
     setName(e.target.value);
   };
-  const changeEmail = (e) => {
-    setEmail(e.target.value);
-  };
-  const changePassword = (e) => {
-    setPasword(e.target.value);
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    setIsEmailValid(validateEmail(newEmail));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     console.log(name, email, password, profileImage);
+    if (!isEmailValid) {
+      toast.error("Invalid email format");
+      return;
+    }
+
+    if (!isPasswordValid) {
+      toast.error("Password does not meet the criteria");
+      return;
+    }
 
     const formData = new FormData();
 
@@ -95,8 +150,8 @@ const Signup = () => {
     <>
       <section
         id="hero"
-        className="min-vh-100  hero d-flex align-items-center pt-4"
-        style={{ backgroundColor: "#FDFBFF" }}
+        className="min-vh-100 hero d-flex align-items-center pt-4"
+        style={{ backgroundColor: "#FDFBFF", overflowY: "auto" }}
       >
         <div className="container  h-100">
           <div className="row d-flex justify-content-center align-items-center h-100">
@@ -177,36 +232,88 @@ const Signup = () => {
                         </div>
 
                         <div className="d-flex flex-row align-items-center mb-3">
-                          <FontAwesomeIcon
-                            icon={faEnvelope}
-                            className="fa-lg me-2 fa-fw"
-                          />
+                          <span>
+                            <FontAwesomeIcon
+                              icon={faEnvelope}
+                              className="fa-lg me-2 fa-fw"
+                            />
+                          </span>
                           <div className="form-outline flex-fill mb-3">
                             <input
-                              onChange={changeEmail}
+                              onChange={handleEmailChange}
                               type="email"
                               id="form3Example3c"
                               className="form-control form-control-sm"
                               placeholder="Enter Email"
                               style={{ height: "40px" }}
                             />
+                            {!isEmailValid && (
+                              <small className="text-danger">
+                                Invalid email format
+                              </small>
+                            )}
                           </div>
                         </div>
 
-                        <div className="d-flex flex-row align-items-center mb-3">
-                          <FontAwesomeIcon
-                            icon={faLock}
-                            className="fa-lg me-2 fa-fw"
-                          />
-                          <div className="form-outline flex-fill mb-3">
+                        <div className="mb-3">
+                          <div className="input-group">
+                            <div className="input-group-prepend">
+                              <span>
+                                <FontAwesomeIcon
+                                  icon={faLock}
+                                  className="fa-lg me-2 fa-fw"
+                                />
+                              </span>
+                            </div>
                             <input
                               onChange={changePassword}
                               type="password"
                               id="form3Example4c"
-                              className="form-control form-control-sm"
+                              className="form-control"
                               placeholder="Enter Password"
+                              aria-label="Password"
+                              aria-describedby="basic-addon1"
                               style={{ height: "40px" }}
                             />
+                          </div>
+                          <div>
+                            <ul>
+                              <li
+                                style={{
+                                  color: criteria.length ? "green" : "red",
+                                }}
+                              >
+                                At least 8 characters
+                              </li>
+                              <li
+                                style={{
+                                  color: criteria.upperCase ? "green" : "red",
+                                }}
+                              >
+                                Contains an uppercase letter
+                              </li>
+                              <li
+                                style={{
+                                  color: criteria.lowerCase ? "green" : "red",
+                                }}
+                              >
+                                Contains a lowercase letter
+                              </li>
+                              <li
+                                style={{
+                                  color: criteria.number ? "green" : "red",
+                                }}
+                              >
+                                Contains a number
+                              </li>
+                              <li
+                                style={{
+                                  color: criteria.specialChar ? "green" : "red",
+                                }}
+                              >
+                                Contains a special character (e.g., !, @, #, $)
+                              </li>
+                            </ul>
                           </div>
                         </div>
 

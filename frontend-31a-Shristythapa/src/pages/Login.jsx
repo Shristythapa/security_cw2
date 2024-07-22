@@ -13,8 +13,26 @@ const Login = () => {
   const [role, setRole] = useState("");
   const captchaRef = useRef(null);
   const navigate = useNavigate();
+  const [isEmailValid, setIsEmailValid] = useState(true);
+
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    setIsEmailValid(validateEmail(newEmail));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+      if (!isEmailValid) {
+        toast.error("Invalid email format");
+        return;
+      }
 
     const data = {
       email: email,
@@ -79,8 +97,8 @@ const Login = () => {
     <>
       <section
         id="hero"
-        className="min-vh-100  hero d-flex align-items-center"
-        style={{ backgroundColor: "#FDFBFF" }}
+        className="min-vh-100 hero d-flex align-items-center pt-4"
+        style={{ backgroundColor: "#FDFBFF", overflowY: "auto" }}
       >
         <div className="container h-100">
           <div className="row d-flex justify-content-center align-items-center h-100">
@@ -131,13 +149,18 @@ const Login = () => {
                           </span>
                           <div className="form-outline flex-fill mb-3">
                             <input
-                              onChange={(e) => setEmail(e.target.value)}
+                              onChange={handleEmailChange}
                               type="email"
                               id="form3Example3c"
                               className="form-control form-control-sm"
                               placeholder="Enter Email"
                               style={{ height: "40px" }}
                             />
+                            {!isEmailValid && (
+                              <small className="text-danger">
+                                Invalid email format
+                              </small>
+                            )}
                           </div>
                         </div>
                         <div className="d-flex flex-row align-items-center mb-3">

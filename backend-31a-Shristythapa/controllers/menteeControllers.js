@@ -32,7 +32,7 @@ const signUpMentee = async (req, res) => {
   const { profilePicture } = req.files;
 
   if (!name || !email || !password) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Please enter all fields",
     });
@@ -40,7 +40,7 @@ const signUpMentee = async (req, res) => {
 
   const isPasswordValid = validatePassword(password);
   if (!isPasswordValid) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message:
         "Password must be 8-12 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
@@ -60,6 +60,7 @@ const signUpMentee = async (req, res) => {
 
     const existingMentee = await Mentees.findOne({ email: email });
     if (existingMentee) {
+      console.log("user already exist");
       return res.status(400).json({
         success: false,
         message: "User already exists",
@@ -100,12 +101,13 @@ const signUpMentee = async (req, res) => {
     }
 
     await passwordEntry.save();
-    
-    json({
+    return res.status(200).json({
       success: true,
       message: "User created sucessfully.",
     });
+
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       sucess: false,
       message: "Server error",

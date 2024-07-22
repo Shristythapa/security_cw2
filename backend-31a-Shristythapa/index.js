@@ -24,7 +24,7 @@ const server = https.createServer(options, app);
 // Create a new Socket.IO server instance
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://localhost:3000/*",
     methods: ["GET", "POST"],
   },
 });
@@ -80,7 +80,8 @@ cloudinary.config({
 
 // CORS policy
 const corsPolicy = {
-  origin: "http://localhost:3000",
+  origin: "https://localhost:3000",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   optionSuccessStatus: 200,
 };
