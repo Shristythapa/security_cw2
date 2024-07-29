@@ -131,16 +131,16 @@ const session_mock = [
     startTime: "07:00",
     endTime: "12:00",
     noOfAttendesSigned: 1,
-    maxNumberOfAttendesTaking: 19,
+  
     isOngoing: false,
-    attendesSigned: [
+    attendesSigned: 
       {
         email: "cooper@gmail.com",
         _id: {
           $oid: "65e3d07243505b34f8db656d",
         },
       },
-    ],
+    
     __v: 1,
   },
 ];

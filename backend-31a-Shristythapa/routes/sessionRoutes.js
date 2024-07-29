@@ -5,7 +5,7 @@ const { menteeAuthGuard } = require("../middleware/authguard");
 
 router.post("/create", sessionController.createSession, mentorAuthGuard);
 router.get("/getAllSessions", sessionController.getAllSessions);
-router.delete("/deleteSession/:id", sessionController.deleteSessions);
+router.post("/deleteSession/:id", sessionController.deleteSessions);
 router.get("/getSessionById/:id", sessionController.getSessionById);
 router.put("/joinSession/:id", sessionController.joinSession, menteeAuthGuard);
 router.get("/mentorSessions/:id", sessionController.getSessionsByMentorId);

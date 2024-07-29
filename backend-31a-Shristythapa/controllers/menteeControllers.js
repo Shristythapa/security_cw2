@@ -5,10 +5,10 @@ const cloudainary = require("cloudinary");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const MenteePaswords = require("../model/passwordMentee");
+const Mentee = require("../model/mentee");
 
 const validatePassword = (password) => {
   const minLength = 8;
-  const maxLength = 12;
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);
   const hasNumbers = /[0-9]/.test(password);
@@ -16,7 +16,6 @@ const validatePassword = (password) => {
 
   if (
     password.length >= minLength &&
-    password.length <= maxLength &&
     hasUpperCase &&
     hasLowerCase &&
     hasNumbers &&
@@ -80,6 +79,7 @@ const signUpMentee = async (req, res) => {
       email: email,
       password: encryptedPassword,
       profileUrl: uploadedImage.secure_url,
+      passwordLastUpdated: Date.now(), 
     });
 
     await newMentee.save();
@@ -89,23 +89,17 @@ const signUpMentee = async (req, res) => {
       userId: newMentee._id,
     });
 
-    if (passwordEntry) {
-      // If the entry exists, append the new password to the list
-      passwordEntry.passwords.push(encryptedPassword);
-    } else {
-      // If the entry does not exist, create a new one
-      passwordEntry = new MenteePaswords({
-        userId: newMentee._id,
-        passwords: [encryptedPassword],
-      });
-    }
+    // If the entry does not exist, create a new one
+    passwordEntry = new MenteePaswords({
+      userId: newMentee._id,
+      passwords: [encryptedPassword],
+    });
 
     await passwordEntry.save();
     return res.status(200).json({
       success: true,
       message: "User created sucessfully.",
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -141,24 +135,35 @@ const loginMentee = async (req, res) => {
     const isMatch = bycrypt.compare(password, passwordToCompare);
 
     if (!isMatch) {
+      console.log("password doesn't match");
       return res.status(400).json({
         success: false,
         message: "Password dosen't match",
       });
     }
+    console.log("password match");
 
     const token = jwt.sign(
       { id: mentee._id, isMentor: false, email: mentee.email },
       process.env.JWT_TOKEN_SECRET
     );
+    console.log("token", token);
+    const cookieOptions = {
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+    };
+
+    res.cookie("cookieHTTP", token, cookieOptions);
 
     return res.status(200).json({
       success: true,
-      token: token,
       mentee: mentee,
       message: "User loged in Sucessfully",
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: error,
@@ -185,8 +190,9 @@ const changePassword = async (req, res) => {
       });
     }
     const token = jwt.sign({ id: user._id }, "jwt_secret_key", {
-      expiresIn: "1d",
+      expiresIn: "2h",
     });
+
     var transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -199,7 +205,7 @@ const changePassword = async (req, res) => {
       from: "thapashristy110@gmail.com",
       to: email,
       subject: "Reset Password Link",
-      text: `http://localhost:3000/resetMentorPassword/${user._id}/${token}`,
+      text: `https://localhost:3000/resetMentorPassword/${user._id}/${token}`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -213,24 +219,62 @@ const changePassword = async (req, res) => {
 };
 
 const updatePassword = async (req, res) => {
-  const { id, token } = req.params;
-  const { password } = req.body;
-  const generatedSalt = await bycrypt.genSalt(10);
+  try {
+    const { id, token } = req.params;
+    const { password } = req.body;
 
-  jwt.verify(token, "jwt_secret_key", (err, decoded) => {
-    if (err) {
-      return res.json({ Status: "Error with token" });
-    } else {
-      bycrypt
-        .hash(password, generatedSalt)
-        .then((hash) => {
-          Mentees.findByIdAndUpdate({ _id: id }, { password: hash })
-            .then((u) => res.json({ success: true }))
-            .catch((err) => res.json({ success: false }));
-        })
-        .catch((err) => res.send({ success: false, message: err }));
+    // Validate input
+    if (!id || !password || !token) {
+      return res
+        .status(400)
+        .json({ error: "User ID, password, and token are required" });
     }
-  });
+
+    // Fetch all password records for the user
+    const passwordRecords = await MenteePaswords.find({ userId: id });
+    if (!passwordRecords || passwordRecords.length === 0) {
+      return res.json({ error: "User not found" });
+    }
+    console.log(passwordRecords);
+
+    // Verify JWT token
+    jwt.verify(token, "jwt_secret_key", async (err, decoded) => {
+      if (err) {
+        return res.json({ message: "Invalid or expired token" });
+      }
+
+      // Check if the new password matches any previous passwords
+      for (const record of passwordRecords) {
+        for (const oldPassword of record.passwords) {
+          const match = await bycrypt.compare(password, oldPassword);
+          if (match) {
+            return res.json({ message: "Can't repeat previous passwords" });
+          }
+        }
+      }
+
+      // Hash the new password
+      const generatedSalt = await bycrypt.genSalt(10);
+      const hashedPassword = await bycrypt.hash(password, generatedSalt);
+
+      // Update the user's password
+      await Mentee.findByIdAndUpdate(id, { password: hashedPassword });
+      console.log("password updated");
+
+      // Add the new hashed password to the password records
+      for (const record of passwordRecords) {
+        record.passwords.push(hashedPassword);
+        await record.save();
+      }
+
+      res
+        .status(200)
+        .json({ success: true, message: "Password updated successfully" });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 module.exports = {

@@ -25,7 +25,7 @@ export const createSessionApi = (data) =>
   Api.post("/session/create", data, config);
 export const getAllSessionsApi = () => Api.get("/session/getAllSessions");
 export const deleteSessionApi = (id) =>
-  Api.delete(`/session/deleteSession/${id}`, config);
+  Api.post(`/session/deleteSession/${id}`, config);
 
 export const getSessionById = (id) => Api.get(`/session/getSessionById/${id}`);
 
@@ -57,8 +57,12 @@ export const forgotPasswordMentor = (data) =>
 
 export const updateMentorPassword = (id, token, data) =>
   Api.post(`mentor/updatePassword/${id}/${token}`, data);
+export const updateMenteePassword = (id, token, data) =>
+  Api.post(`mentee/updatePassword/${id}/${token}`, data);
 
 export const forgotPasswordMentee = (data) =>
   Api.post("/mentee/forgotPassword", data);
 export const startCall = (id) => Api.put(`/session/startSession/${id}`);
 export const endCall = (id) => Api.put(`/session/endCall/${id}`);
+
+export const verifyRecaptcha = (data) => Api.post("/captcha/postCaptcha", data);

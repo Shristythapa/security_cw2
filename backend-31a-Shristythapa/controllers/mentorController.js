@@ -4,11 +4,10 @@ const bycrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { add } = require("date-fns");
 const nodemailer = require("nodemailer");
-const MentorPaswords = require("../model/passwordMentor");
+const MentorPasswords = require("../model/passwordMentor");
 
 const validatePassword = (password) => {
   const minLength = 8;
-  const maxLength = 12;
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);
   const hasNumbers = /[0-9]/.test(password);
@@ -16,7 +15,6 @@ const validatePassword = (password) => {
 
   if (
     password.length >= minLength &&
-    password.length <= maxLength &&
     hasUpperCase &&
     hasLowerCase &&
     hasNumbers &&
@@ -40,7 +38,7 @@ const signUpMentor = async (req, res) => {
   } = req.body;
   const { profilePicture } = req.files;
 
-  // const skill
+  console.log(req.body);
 
   if (
     name == "" ||
@@ -63,7 +61,7 @@ const signUpMentor = async (req, res) => {
     return res.status(400).json({
       success: false,
       message:
-        "Password must be 8-12 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
     });
   }
 
@@ -106,11 +104,11 @@ const signUpMentor = async (req, res) => {
       },
 
       profileUrl: uploadImage.secure_url,
+      passwordLastUpdated: Date.now(),
     });
 
-    // await newMentor.save();
-    
- 
+    await newMentor.save();
+
     console.log(newMentor._id);
     let passwordEntry = await MentorPaswords.findOne({
       userId: newMentor._id,
@@ -173,11 +171,19 @@ const loginMentor = async (req, res) => {
       process.env.JWT_TOKEN_SECRET
     );
 
+    const cookieOptions = {
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+    };
+
+    res.cookie("cookieHTTP", token, cookieOptions);
+
     return res.status(200).json({
       success: true,
-      token: token,
-      message: "User loged in successfully",
       mentor: mentor,
+      message: "User loged in Sucessfully",
     });
   } catch (error) {
     return res.status(400).json({
@@ -292,7 +298,7 @@ const changePassword = async (req, res) => {
         .json({ message: "User not existed", success: false });
     }
     const token = jwt.sign({ id: user._id }, "jwt_secret_key", {
-      expiresIn: "1d",
+      expiresIn: "1h",
     });
     var transporter = nodemailer.createTransport({
       service: "gmail",
@@ -303,10 +309,9 @@ const changePassword = async (req, res) => {
     });
 
     var mailOptions = {
-      from: "thapashristy110@gmail.com",
       to: email,
       subject: "Reset Password Link",
-      text: `http://localhost:3000/resetMentorPassword/${user._id}/${token}`,
+      text: `https://localhost:3000/resetMentorPassword/${user._id}/${token}`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -321,24 +326,62 @@ const changePassword = async (req, res) => {
 };
 
 const updatePassword = async (req, res) => {
-  const { id, token } = req.params;
-  const { password } = req.body;
-  const generatedSalt = await bycrypt.genSalt(10);
+  try {
+    const { id, token } = req.params;
+    const { password } = req.body;
 
-  jwt.verify(token, "jwt_secret_key", (err, decoded) => {
-    if (err) {
-      return res.json({ Status: "Error with token" });
-    } else {
-      bycrypt
-        .hash(password, generatedSalt)
-        .then((hash) => {
-          Mentor.findByIdAndUpdate({ _id: id }, { password: hash })
-            .then((u) => res.json({ success: true }))
-            .catch((err) => res.json({ success: false }));
-        })
-        .catch((err) => res.send({ success: false, message: err }));
+    // Validate input
+    if (!id || !password || !token) {
+      return res
+        .status(400)
+        .json({ message: "User ID, password, and token are required" });
     }
-  });
+
+    // Fetch all password records for the user
+    const passwordRecords = await MentorPasswords.find({ userId: id });
+    if (!passwordRecords || passwordRecords.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify JWT token
+    jwt.verify(token, "jwt_secret_key", async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+      }
+
+      // Check if the new password matches any previous passwords
+      for (const record of passwordRecords) {
+        for (const oldPassword of record.passwords) {
+          const match = await bycrypt.compare(password, oldPassword);
+          if (match) {
+            return res
+              .status(400)
+              .json({ message: "Can't repeat previous passwords" });
+          }
+        }
+      }
+
+      // Hash the new password
+      const generatedSalt = await bycrypt.genSalt(10);
+      const hashedPassword = await bycrypt.hash(password, generatedSalt);
+
+      // Update the user's password
+      await Mentor.findByIdAndUpdate(id, { password: hashedPassword });
+
+      // Add the new hashed password to the password records
+      for (const record of passwordRecords) {
+        record.passwords.push(hashedPassword);
+        await record.save();
+      }
+
+      res
+        .status(200)
+        .json({ success: true, message: "Password updated successfully" });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 module.exports = {

@@ -26,8 +26,7 @@ const MentorSessions = () => {
 
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
-  const [maxNumberOfAttendesTaking, setmaxNumberOfAttendesTaking] =
-    useState(20);
+
 
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -63,8 +62,7 @@ const MentorSessions = () => {
         !description ||
         !selectedDate ||
         !startTime ||
-        !endTime ||
-        !maxNumberOfAttendesTaking)
+        !endTime )
     ) {
       return toast.error("Enter all feilds");
     }
@@ -80,7 +78,7 @@ const MentorSessions = () => {
       date: formateDate.toISOString().split("T")[0],
       startTime: startTime,
       endTime: endTime,
-      maxNumberOfAttendesTaking: maxNumberOfAttendesTaking,
+   
     };
 
     createSessionApi(data)
@@ -138,9 +136,6 @@ const MentorSessions = () => {
   };
 
   const handleStart = (data) => {
-    // if (getStatus(data.selectedDate) == "Completed") {
-    //   return toast.error("Session Date Ended");
-    // }
     startCall(data._id);
     navigate(`/mentor_video_call/${data._id}`, { state: data._id });
   };
@@ -165,8 +160,6 @@ const MentorSessions = () => {
         <p>Date: {format(parseISO(session.date), "yyyy-MM-dd")}</p>
         <p>Start Time: {session.startTime}</p>
         <p>End Time: {session.endTime}</p>
-        <p>Max no of attendees: {session.maxNumberOfAttendesTaking}</p>
-        <p>No of attendees enrolled: {session.noOfAttendesSigned}</p>
       </Modal.Body>
       <Modal.Footer>
         <button className="btn btn-secondary" onClick={handleCloseModal}>
@@ -285,18 +278,8 @@ const MentorSessions = () => {
                       className="form-control mb-2"
                     />
 
-                    {/* discription */}
-                    <br></br>
-                    <label className="form-label">
-                      Max number of attendees taking
-                    </label>
-                    <input
-                      onChange={(e) =>
-                        setmaxNumberOfAttendesTaking(e.target.value)
-                      }
-                      type="number"
-                      className="form-control mb-2"
-                    ></input>
+            
+                 
                   </form>
                 </div>
                 <div className="modal-footer">
@@ -357,16 +340,7 @@ const MentorSessions = () => {
                   </Card.Subtitle>
 
                   <div className="d-flex align-items-center">
-                    {/* <Card.Subtitle className="col">
-                          {session.mentorId}
-                        </Card.Subtitle> */}
-                    {/* <img
-                    src={session.mentor.imageUrl}
-                    alt={session.mentor.name}
-                    width="30"
-                    height="30"
-                    className="rounded-circle ml-2 align-self-end"
-                  /> */}
+                
                   </div>
 
                   <button

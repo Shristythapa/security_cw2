@@ -1,9 +1,17 @@
 const router = require("express").Router();
 const mentorController = require("../controllers/mentorController");
 const { loginAccountLimiter } = require("../middleware/ratelimit");
+const {
+  checkPasswordExpiration,
+} = require("../middleware/mentee_password_expires");
 
 router.post("/signup", mentorController.signUpMentor);
-router.post("/login",loginAccountLimiter, mentorController.loginMentor);
+router.post(
+  "/login",
+  checkPasswordExpiration,
+  loginAccountLimiter,
+  mentorController.loginMentor
+);
 router.get("/getAllMentors", mentorController.getAllMentors);
 router.get("/getAllMentorsById", mentorController.getMentorById);
 router.get("/findByEmail/:email", mentorController.findByEmail);

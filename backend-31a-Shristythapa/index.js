@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const https = require("https");
 const fs = require("fs");
-const socket = require("socket.io");
 const { Server } = require("socket.io");
 const { ExpressPeerServer } = require("peer");
 const cloudinary = require("cloudinary");
@@ -21,13 +20,20 @@ const app = express();
 // Create an HTTPS server
 const server = https.createServer(options, app);
 
+// CORS policy
+const corsPolicy = {
+  origin: "https://localhost:3000",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true,
+  optionSuccessStatus: 200, 
+};
+app.use(cors(corsPolicy));
+
 // Create a new Socket.IO server instance
 const io = new Server(server, {
-  cors: {
-    origin: "https://localhost:3000/*",
-    methods: ["GET", "POST"],
-  },
+ corsPolicy
 });
+
 
 // Set up PeerJS server
 const opinions = { debug: true };
@@ -78,14 +84,7 @@ cloudinary.config({
   api_secret: "7hELqPjemOLTQMHygIAsDJmpGME",
 });
 
-// CORS policy
-const corsPolicy = {
-  origin: "https://localhost:3000",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-  optionSuccessStatus: 200,
-};
-app.use(cors(corsPolicy));
+
 
 // Configure multiparty for handling file uploads
 app.use(multiparty());
@@ -105,16 +104,11 @@ app.use("/api/mentee", require("./routes/menteeRoutes"));
 app.use("/api/mentor", require("./routes/mentorRoutes"));
 app.use("/api/session", require("./routes/sessionRoutes"));
 app.use("/api/article", require("./routes/articleRoutes"));
-
-// Define a test route
-app.get("/test", (req, res) => {
-  res.send("Hello from express server");
-});
+app.use("/api/captcha",require("./routes/captchaRoutes") )
 
 // Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
 module.exports = app;

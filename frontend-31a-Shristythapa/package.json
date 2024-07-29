@@ -14,13 +14,12 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@trendmicro/react-sidenav": "^0.5.0",
-    "aos": "^3.0.0-beta.6",
+    "aos": "^2.3.4",
     "axios": "^1.6.7",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.2",
     "date-fns": "^3.0.6",
-    "firebase": "^10.8.0",
-    "jest": "^27.5.1",
+    "jwt-decode": "^4.0.0",
     "peerjs": "^1.5.2",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.2",
@@ -34,20 +33,13 @@
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.4",
     "styled-components": "^6.1.8",
-    "web-vitals": "^2.1.4",
-    "ws": "^8.16.0"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
-"start": "set HTTPS=true&&set SSL_CRT_FILE=mycert.pem&&set SSL_KEY_FILE=mycert.key&&react-scripts start",
+    "start": "set HTTPS=true&&set SSL_CRT_FILE=mycert.pem&&set SSL_KEY_FILE=mycert.key&&react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\"",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -62,6 +54,8 @@
     ]
   },
   "devDependencies": {
-    "@types/bootstrap": "^5.2.10"
+    "@eslint/js": "^9.7.0",
+    "@types/bootstrap": "^5.2.10",
+    "globals": "^15.8.0"
   }
 }

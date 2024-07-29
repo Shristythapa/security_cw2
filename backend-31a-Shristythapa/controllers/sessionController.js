@@ -12,7 +12,6 @@ const createSession = async (req, res) => {
     date,
     startTime,
     endTime,
-    maxNumberOfAttendesTaking,
   } = req.body;
 
   console.log(mentorEmail, mentorName, title);
@@ -25,8 +24,7 @@ const createSession = async (req, res) => {
     !description ||
     !date ||
     !startTime ||
-    !endTime ||
-    !maxNumberOfAttendesTaking
+    !endTime 
   ) {
     return res.status(400).json({
       success: false,
@@ -45,7 +43,6 @@ const createSession = async (req, res) => {
       date: format(parseISO(date), "yyyy-MM-dd"),
       startTime: startTime,
       endTime: endTime,
-      maxNumberOfAttendesTaking: maxNumberOfAttendesTaking,
     });
 
     await newSession.save();
@@ -94,31 +91,23 @@ const joinSession = async (req, res) => {
     let session = await Session.findById(id);
 
     if (!session) {
-      return res.status(404).json({ error: "Session not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Session not found" });
     }
 
-    const maxAttendees = session.maxAttendees || Infinity;
-    const currentAttendees = session.attendesSigned.length;
-
-    if (currentAttendees >= maxAttendees) {
+    if (session.attendeeSigned && session.attendeeSigned.menteeId) {
       return res.status(400).json({
         success: false,
-        message: "Maximum number of attendees reached",
+        message: "Session already has an attendee",
       });
     }
 
-    const emailExists = session.attendesSigned.some(
-      (attendee) => attendee.email === menteeEmail
-    );
-    if (emailExists) {
-      return res.status(400).json({
-        success: false,
-        message: "Mentee already joined",
-      });
-    }
+    session.attendeeSigned = {
+      menteeId: menteeId,
+      email: menteeEmail,
+    };
 
-    session.attendesSigned.push({ email: menteeEmail });
-    session.noOfAttendesSigned++;
     const updatedSession = await session.save();
 
     console.log("Session joined");
@@ -128,9 +117,10 @@ const joinSession = async (req, res) => {
       session: updatedSession,
     });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 const getSessionById = async (req, res) => {
   const id = req.params.id;

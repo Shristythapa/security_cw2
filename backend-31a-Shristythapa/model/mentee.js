@@ -18,8 +18,12 @@ const mentee = mongoose.Schema({
   profileUrl: {
     type: String,
     trim: true,
-    required: false
+    required: false,
   },
+  passwordLastUpdated:{
+    type:Date,
+    required: true
+  }
 });
 
 const Mentee = mongoose.model('mentees',mentee)

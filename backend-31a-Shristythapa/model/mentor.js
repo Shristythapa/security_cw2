@@ -36,6 +36,10 @@ const mentor = mongoose.Schema({
     trim: true,
     required:false
   },
+  passwordLastUpdated:{
+    type:Date,
+    required: true
+  }
 });
 
 const Mentor = mongoose.model('mentor',mentor)

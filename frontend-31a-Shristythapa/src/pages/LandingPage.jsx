@@ -6,10 +6,45 @@ import "aos/dist/aos.css";
 import "../assets/css/start.css";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
+
+// Function to get the cookie value by name
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+}
 
 const Landing = () => {
+  const navigate = useNavigate();
+
+  // Function to check if the user is logged in based on the cookie
+  const checkLogin = () => {
+    const token = getCookie("cookieHTTP");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        console.log("Decoded Token:", decodedToken);
+
+        // Perform automatic login or set user data in the application state
+        const isMentor = decodedToken.isMentor;
+        if (isMentor) {
+          navigate("/mentor/mentorSessionDashboard");
+        } else {
+          navigate("/mentee/menteeSessionDashboard");
+        }
+      } catch (error) {
+        console.error("Failed to decode token:", error);
+      }
+    } else {
+      console.log("No token found");
+    }
+  };
+
   useEffect(() => {
     AOS.init();
+    checkLogin();
   }, []);
 
   return (

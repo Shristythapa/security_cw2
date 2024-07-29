@@ -46,7 +46,7 @@ const MentorForm = () => {
       .then((res) => {
         if (res.data.success === false) {
           // console.log(res.data.message)
-          //add toast to show error message
+
           toast.error(res.data.message);
         } else {
           toast.success(res.data.message);
@@ -54,7 +54,7 @@ const MentorForm = () => {
         }
       })
       .catch((err) => {
-         toast.error(err.response.data.message);
+        toast.error(err.response.data.message);
         console.log(err.message);
       });
   };

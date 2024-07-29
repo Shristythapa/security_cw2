@@ -5,26 +5,20 @@ import { getSessionById } from "../../Api/Api";
 import { React, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 const MenteeDashboard = () => {
-  const email = JSON.parse(localStorage.getItem("user")).email;
+ 
 
   useEffect(() => {
-    const socket = io("http://localhost:5000"); // Connect to the server
-    // Add event listeners to the socket
+    const socket = io("https://localhost:5000"); 
 
     socket.on("mentor-join", async (ROOM_ID) => {
       const session = await getSessionById(ROOM_ID);
       console.log(session);
       console.log("session started");
-      // session.attendesSigned.some((attendee) => {
-      //   if (attendee.email === session.mentor.email) {
       window.location.reload();
 
       setTimeout(function () {
         toast.success("Session started");
       }, 2000);
-
-      //   }
-      // });
     });
 
     socket.on("user-disconnected", (userId) => {
@@ -32,7 +26,7 @@ const MenteeDashboard = () => {
     });
 
     return () => {
-      socket.disconnect(); // Clean up the socket connection when the component unmounts
+      socket.disconnect(); 
     };
   }, []);
   return (

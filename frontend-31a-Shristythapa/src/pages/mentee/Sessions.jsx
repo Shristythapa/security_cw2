@@ -2,7 +2,7 @@ import { React, useState, useEffect } from "react";
 import { Card, Button, Modal } from "react-bootstrap";
 import {
   getAllSessionsApi,
-  getSessionById,
+
   joinSession,
   startCall,
 } from "../../Api/Api";
@@ -123,13 +123,13 @@ const Sessions = () => {
       });
   };
 
-  const isMentorAlreadyJoined = (session) =>
-    session.attendesSigned.some((attendee) => {
-      console.log("Attendee email:", attendee.email);
-      console.log("Attendee email:", session.mentor.email);
-      console.log(attendee.email === session.mentor.email);
-      return attendee.email === mentee.email;
-    });
+  // const isMentorAlreadyJoined = (session) =>
+  //   session.attendesSigned.some((attendee) => {
+  //     console.log("Attendee email:", attendee.email);
+  //     console.log("Attendee email:", session.mentor.email);
+  //     console.log(attendee.email === session.mentor.email);
+  //     return attendee.email === mentee.email;
+  //   });
 
   const SessionModal = ({ session }) => (
     <Modal
@@ -148,23 +148,13 @@ const Sessions = () => {
         <p>Mentor: {session.mentor.name}</p>
 
         <p>Description: {session.description}</p>
-        {/* Add more fields with detailed information if needed */}
-        <p>Max no of attendees taking: {session.maxNumberOfAttendesTaking}</p>
+     
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleCloseModal}>
           Close
         </Button>
-        {isMentorAlreadyJoined(session) ? (
-          // <button
-          //   className="btn"
-          //   onClick={() => {
-          //     handleStart(session);
-          //   }}
-          //   style={{ backgroundColor: "#EEA025", color: "#fff" }}
-          // >
-          //   Start Session
-          // </button>
+        {/* {isMentorAlreadyJoined(session) ? (
           <div></div>
         ) : (
           <button
@@ -181,7 +171,7 @@ const Sessions = () => {
           >
             Join Session
           </button>
-        )}
+        )} */}
       </Modal.Footer>
     </Modal>
   );
@@ -248,11 +238,11 @@ const Sessions = () => {
                     alignItems: "center",
                   }}
                 >
-                  {isMentorAlreadyJoined(session) && (
+                  {/* {isMentorAlreadyJoined(session) && (
                     <span className="text-success font-weight-bold font-italic ml-2">
                       Joined
                     </span>
-                  )}
+                  )} */}
                   <div
                     style={{
                       display: "flex",

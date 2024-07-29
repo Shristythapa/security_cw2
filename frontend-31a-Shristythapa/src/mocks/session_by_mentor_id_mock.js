@@ -17,10 +17,10 @@ const session_by_mentor_id_mock = [
     },
     startTime: "14:00",
     endTime: "16:00",
-    noOfAttendesSigned: 0,
-    maxNumberOfAttendesTaking: 9,
+
+
     isOngoing: false,
-    attendesSigned: [],
+  
     __v: 0,
   },
   {
@@ -42,17 +42,16 @@ const session_by_mentor_id_mock = [
     },
     startTime: "5:00 AM",
     endTime: "8:00 AM",
-    noOfAttendesSigned: 4,
-    maxNumberOfAttendesTaking: 10,
+ 
     isOngoing: false,
-    attendesSigned: [
+    attendesSigned:
       {
         email: "mentor@example.com",
         _id: {
           $oid: "65e40047efa11a516e86ccbd",
         },
       },
-    ],
+    
     __v: 5,
   },
   {
@@ -73,17 +72,16 @@ const session_by_mentor_id_mock = [
     },
     startTime: "7:05 AM",
     endTime: "10:05 AM",
-    noOfAttendesSigned: 5,
-    maxNumberOfAttendesTaking: 9,
+
     isOngoing: false,
-    attendesSigned: [
+    attendesSigned: 
       {
         email: "Cooper@gmail.com",
         _id: {
           $oid: "65e3bf739018d258107db7de",
         },
       },
-    ],
+    
     __v: 5,
   },
  

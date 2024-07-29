@@ -83,12 +83,11 @@ const MentorPPForMentee = () => {
       date: session.date,
       startTime: session.startTime,
       endTime: session.endTime,
-      attendeesSinged: [
+      attendeesSinged: 
         { email: mentee.email },
         ...(session.attendesSigned || []), // Use an empty array if session.attendesSigned is undefined
-      ],
-      noOfAttendesSigned: session.noOfAttendesSigned + 1,
-      maxNumberOfAttendesTaking: session.maxNumberOfAttendesTaking,
+      
+  
     };
     joinSession(id, sessionData)
       .then((res) => {
@@ -147,8 +146,6 @@ const MentorPPForMentee = () => {
         <p>Date: {format(parseISO(session.date), "yyyy-MM-dd")}</p>
         <p>Start Time: {session.startTime}</p>
         <p>End Time: {session.endTime}</p>
-        <p>Max no of attendees: {session.maxNumberOfAttendesTaking}</p>
-        <p>No of attendees enrolled: {session.noOfAttendesSigned}</p>
       </Modal.Body>
       <Modal.Footer>
         <button className="btn btn-secondary" onClick={handleCloseModal}>
@@ -277,21 +274,11 @@ const MentorPPForMentee = () => {
                       </Card.Subtitle>
 
                       <div className="d-flex align-items-center">
-                        {/* <Card.Subtitle className="col">
-                          {session.mentorId}
-                        </Card.Subtitle> */}
-                        {/* <img
-                    src={session.mentor.imageUrl}
-                    alt={session.mentor.name}
-                    width="30"
-                    height="30"
-                    className="rounded-circle ml-2 align-self-end"
-                  /> */}
+              
                       </div>
 
                       <button
-                        // style={{ backgroundColor: "#EEA025", color: "#fff" }}
-                        // variant="primary"
+                    
                         className="mt-3 btn"
                         onClick={() => handleShowModal(session._id)}
                         style={{ backgroundColor: "#772C91", color: "#fff" }}

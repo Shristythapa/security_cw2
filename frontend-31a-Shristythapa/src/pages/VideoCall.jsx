@@ -4,8 +4,8 @@ import { useRef, useEffect, useState } from "react";
 import io from "socket.io-client";
 import Peer from "peerjs";
 import "../assets/css/style.css";
-import VideoCard from "../components/VideoCard";
 import { endCall, startCall } from "../Api/Api";
+import { toast } from "react-toastify";
 
 const VideoPage = () => {
   const navigate = useNavigate();
@@ -26,12 +26,11 @@ const VideoPage = () => {
   const videoGrid = useRef();
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const userName = "hello";
-
   useEffect(() => {
-    const socket = io("http://localhost:5000");
+    const socket = io("https://localhost:5000");
     myVideo.muted = true;
-    console.log("rOOM ID", ROOM_ID);
+    console.log("ROOM ID", ROOM_ID);
+
     const peer = new Peer({
       host: "localhost",
       port: 5000,
@@ -59,7 +58,6 @@ const VideoPage = () => {
           },
         ],
       },
-
       debug: 3,
     });
 
@@ -68,42 +66,55 @@ const VideoPage = () => {
       socket.emit("join-room", ROOM_ID, id, user._id);
     });
 
-    // export const endCall = (id) => Api.get(`/session/endCall/${id}`);
-    if (user._id == state.mentorId) {
+    if (user._id === state.mentorId) {
       startCall(state._id);
     }
+
     navigator.mediaDevices
-      .getUserMedia({
-        audio: true,
-        video: true,
-      })
+      .getUserMedia({ audio: true, video: true })
       .then((stream) => {
         setMyVideoStream(stream);
         addVideoStream(myVideo, stream, user._id);
-        console.log("streeming");
-        peer.on("call", (call) => {
-          console.log(call);
-          console.log("someone call me");
-          call.answer(stream);
-          const video = document.createElement("video");
-          call.on("stream", (userVideoStream) => {
-            addVideoStream(video, userVideoStream);
-          });
-        });
-        socket.on("user-connected", (userId) => {
-          console.log(userId, "user connected");
-          connectToNewUser(userId, stream);
-        });
-        socket.on("user-disconnected", (userId) => {
-          console.log(userId, " disconnected");
+        console.log("streaming");
+
+        setupPeerCallHandling(peer, stream);
+        setupSocketEvents(socket, peer, stream);
+      })
+      .catch((error) => {
+        console.error("Error accessing media devices.", error);
+        toast.error("Media not found. Proceeding without media stream.");
+
+        // Proceed without media stream
+        setupPeerCallHandling(peer, null);
+        setupSocketEvents(socket, peer, null);
+      });
+
+    const setupPeerCallHandling = (peer, stream) => {
+      peer.on("call", (call) => {
+        console.log("Incoming call", call);
+        call.answer(stream); // Answer with or without the stream
+        const video = document.createElement("video");
+        call.on("stream", (userVideoStream) => {
+          addVideoStream(video, userVideoStream);
         });
       });
-    const connectToNewUser = (userId, stream) => {
-      console.log("I call someone" + userId);
+    };
 
-      // Check if a video element with the same userId already exists
+    const setupSocketEvents = (socket, peer, stream) => {
+      socket.on("user-connected", (userId) => {
+        console.log(userId, "user connected");
+        connectToNewUser(userId, peer, stream);
+      });
+
+      socket.on("user-disconnected", (userId) => {
+        console.log(userId, "disconnected");
+      });
+    };
+
+    const connectToNewUser = (userId, peer, stream) => {
+      console.log("Calling user", userId);
       if (!document.querySelector(`video[data-peer-id="${userId}"]`)) {
-        const call = peer.call(userId, stream);
+        const call = peer.call(userId, stream); // Call with or without the stream
         const video = document.createElement("video");
 
         call.on("stream", (userVideoStream) => {
@@ -117,9 +128,8 @@ const VideoPage = () => {
     };
 
     const handleBeforeUnload = () => {
-      // Emit a "disconnect" event to the server before leaving the page
       socket.emit("disconnect");
-      if (user._id == state.mentorId) {
+      if (user._id === state.mentorId) {
         endCall(state._id);
       }
     };
@@ -128,13 +138,10 @@ const VideoPage = () => {
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      // Cleanup: Disconnect the socket when the component unmounts
       socket.disconnect();
       peer.destroy();
-
-      // Stop video and audio tracks when leaving the page
       if (myVideoStream) {
-        console.log("my video streem ", myVideoStream);
+        console.log("Stopping my video stream", myVideoStream);
         const videoTrack = myVideoStream.getVideoTracks()[0];
         const audioTrack = myVideoStream.getAudioTracks()[0];
 
@@ -148,7 +155,7 @@ const VideoPage = () => {
     video.srcObject = stream;
     video.addEventListener("loadedmetadata", () => {
       video.play();
-      video.setAttribute("data-peer-id", peerId); // Set data attribute for peerId
+      video.setAttribute("data-peer-id", peerId);
       videoGrid.current.append(video);
     });
   };
