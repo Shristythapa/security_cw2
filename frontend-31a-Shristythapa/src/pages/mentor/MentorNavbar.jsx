@@ -1,21 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { useUser } from "../../context/UserContext";
 
 const MentorNavbar = () => {
+  const user = useUser();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const handleLogout = (e) => {
     e.preventDefault();
-    localStorage.clear();
+    res.clearCookie("cookieHTTP");
     navigate("/login");
   };
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const image = user.profileUrl;
   return (
     <div>
       <nav
@@ -76,7 +76,11 @@ const MentorNavbar = () => {
               aria-expanded="false"
             >
               <img
-                src={image}
+                src={
+                  user
+                    ? user.profileUrl
+                    : "https://www.google.com/imgres?q=how%20can%20i%20persist%20user%20information%20through%20a%20session%20react&imgurl=https%3A%2F%2Fcms-assets.tutsplus.com%2Fcdn-cgi%2Fimage%2Fwidth%3D600%2Fuploads%252Fusers%252F48%252Fposts%252F25180%252Fimage-1451577414907.jpg&imgrefurl=https%3A%2F%2Fcode.tutsplus.com%2Fdata-persistence-and-sessions-with-react--cms-25180t&docid=fHk_O2g9CtYgqM&tbnid=GvMLdTcvkz60lM&vet=12ahUKEwjJxPGfmNOHAxVMRmcHHdNhB1AQM3oECGgQAA..i&w=600&h=300&hcb=2&ved=2ahUKEwjJxPGfmNOHAxVMRmcHHdNhB1AQM3oECGgQAA"
+                }
                 alt="hugenerd"
                 width="50"
                 height="50"
@@ -86,7 +90,7 @@ const MentorNavbar = () => {
                 className="d-none d-sm-inline mx-1"
                 style={{ color: "#EEA025", fontSize: "20px" }}
               >
-                {user.name}
+                {user ? user.name : "Loading..."}
               </span>
             </a>
             <ul className="dropdown-menu dropdown-menu-light text-small shadow">

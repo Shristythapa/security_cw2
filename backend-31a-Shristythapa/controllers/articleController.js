@@ -13,7 +13,7 @@ const createArticle = async (req, res) => {
     !mentorEmail ||
     !profileUrl
   ) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Please enter all feilds",
     });
@@ -37,7 +37,7 @@ const createArticle = async (req, res) => {
     });
   } catch (e) {
     console.log(e);
-    res.status(400).json({
+    res.json({
       success: false,
       message: "Server error",
     });
@@ -48,7 +48,7 @@ const deleteArticle = async (req, res) => {
   const id = req.params.id;
   console.log("Deletinggggg.....");
   if (!id) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Invalid id",
     });
@@ -57,7 +57,7 @@ const deleteArticle = async (req, res) => {
     const article = await Article.findByIdAndDelete(id);
 
     if (!article) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "Article Not Found",
       });
@@ -89,7 +89,7 @@ const getAllArticle = async (req, res) => {
       .limit(resultPerPage);
     if (!articles) {
       console.log("article not found");
-      return res.status(400).json({
+      return res.json({
         success: false,
         messgae: "Articles not found",
       });

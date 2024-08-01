@@ -4,6 +4,8 @@ import io from "socket.io-client";
 import Peer from "peerjs";
 import { endCall } from "../../Api/Api";
 import { toast } from "react-toastify";
+import { useUser } from "../../context/UserContext";
+
 const VideoCall = () => {
   const navigate = useNavigate();
 
@@ -22,8 +24,7 @@ const VideoCall = () => {
   const myVideo = document.createElement("video");
 
   const videoGrid = useRef();
-  const user = JSON.parse(localStorage.getItem("user"));
-
+const user = useUser();
   useEffect(() => {
     const socket = io.connect("http://localhost:5000");
     myVideo.muted = true;

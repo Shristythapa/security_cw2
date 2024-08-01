@@ -26,7 +26,7 @@ const createSession = async (req, res) => {
     !startTime ||
     !endTime 
   ) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Please enter all fields",
     });
@@ -81,7 +81,7 @@ const joinSession = async (req, res) => {
   console.log(menteeEmail, "joining session...");
 
   if (!menteeEmail || !menteeId) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Invalid Mentee",
     });
@@ -97,7 +97,7 @@ const joinSession = async (req, res) => {
     }
 
     if (session.attendeeSigned && session.attendeeSigned.menteeId) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "Session already has an attendee",
       });
@@ -126,7 +126,7 @@ const getSessionById = async (req, res) => {
   const id = req.params.id;
 
   if (!id) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Session Id required",
     });
@@ -144,7 +144,7 @@ const getSessionById = async (req, res) => {
       });
     }
     console.log("session by id not found");
-    return res.stauts(400).json({
+    return res.json({
       success: false,
       message: "Session Not Valid",
     });
@@ -162,7 +162,7 @@ const deleteSessions = async (req, res) => {
     const deletedSession = await Session.findByIdAndDelete(req.params.id);
 
     if (!deletedSession) {
-      res.status(400).json({
+      res.json({
         message: "Session not found",
         success: false,
       });
@@ -193,7 +193,7 @@ const getSessionsByMentorId = async (req, res) => {
       count: mentorSessions.length,
     });
   } catch (e) {
-    res.status(400).json({
+    res.json({
       message: "error",
       success: false,
     });
@@ -213,7 +213,7 @@ const startSession = async (req, res) => {
 
     if (!updatedSession) {
       console.log("Session not found");
-      return res.status(400).json({
+      return res.json({
         message: "Session not found",
         success: false,
       });
@@ -247,7 +247,7 @@ const endCall = async (req, res) => {
 
     if (!updatedSession) {
       console.log("Session not found");
-      return res.status(400).json({
+      return res.json({
         message: "Session not found",
         success: false,
       });

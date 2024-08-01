@@ -15,8 +15,15 @@ async function verifyRecaptcha(recaptchaResponse) {
 
     return response.data.success;
   } catch (error) {
-    console.error("Error verifying reCAPTCHA:", error);
-    return false;
+    if (error.response) {
+      if (error.response.status === 400) {
+        return res.json({ message: "reCAPTCHA verification failed" });
+      } else {
+        return res.json({ message: "reCAPTCHA verification failed" });
+      }
+    } else {
+      return res.json({ message: "reCAPTCHA verification failed" });
+    }
   }
 }
 
@@ -27,14 +34,14 @@ const captchaCheck = async (req, res) => {
     const isRecaptchaValid = await verifyRecaptcha(captcha);
 
     if (!isRecaptchaValid) {
-      return res.status(400).json({ error: "reCAPTCHA verification failed" });
+      return res.json({ message: "reCAPTCHA verification failed" });
     } else {
       return res.status(200).json({
         success: true,
       });
     }
   } catch (error) {
-    console.log(error);
+    return res.json({ message: "reCAPTCHA verification failed" });
   }
 };
 

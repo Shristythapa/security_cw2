@@ -1,15 +1,14 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import { useUser } from "../../context/UserContext";
 const MenteeNavbar = () => {
   const navigate = useNavigate();
   const handleLogout = (e) => {
     e.preventDefault();
-    localStorage.clear();
+    res.clearCookie("cookieHTTP");
     navigate("/login");
   };
-  const user = JSON.parse(localStorage.getItem("user"));
-  const image = user.profileUrl;
+  const user = useUser();
   return (
     <div>
       <nav
@@ -84,7 +83,7 @@ const MenteeNavbar = () => {
               aria-expanded="false"
             >
               <img
-                src={image}
+                src={user.profileUrl}
                 alt="hugenerd"
                 width="50"
                 height="50"

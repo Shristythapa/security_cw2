@@ -20,16 +20,16 @@ function UpdatePassword() {
     number: false,
     specialChar: false,
   });
-
   const validatePassword = (password) => {
     const minLength = 8;
+    const maxLength = 12;
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
     setCriteria({
-      length: password.length >= minLength,
+      length: password.length >= minLength && password.label < maxLength,
       upperCase: hasUpperCase,
       lowerCase: hasLowerCase,
       number: hasNumber,
@@ -39,6 +39,7 @@ function UpdatePassword() {
     // Set password validity
     setIsPasswordValid(
       password.length >= minLength &&
+        password.length < maxLength &&
         hasUpperCase &&
         hasLowerCase &&
         hasNumber &&
@@ -54,13 +55,13 @@ function UpdatePassword() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (role == "mentor") {
-      console.log("forgot passsword menbtor");
+      // console.log("forgot passsword menbtor");
       try {
-        console.log("update mentor password");
+        // console.log("update mentor password");
         updateMentorPassword(id, token, { password: password })
           .then((res) => {
-            console.log("updated");
-            console.log(res);
+            // console.log("updated");
+            // console.log(res);
             if (res.data.success === true) {
               toast.success("Password Reset succesfull");
               navigate("/login");
@@ -69,17 +70,19 @@ function UpdatePassword() {
               // navigate("/login");
             }
           })
-          .catch((err) => console.log(err));
+          .catch((err) =>{
+            //  console.log(err);
+          });
       } catch (e) {
         toast.error(e.message);
       }
     } else if (role == "mentee") {
       try {
-        console.log("update mentee password");
+        // console.log("update mentee password");
         updateMenteePassword(id, token, { password: password })
           .then((res) => {
-            console.log("updated");
-            console.log(res);
+            // console.log("updated");
+            // console.log(res);
             if (res.data.success === true) {
               toast.success("Password Reset succesfull");
               navigate("/login");
@@ -144,7 +147,7 @@ function UpdatePassword() {
                     color: criteria.length ? "green" : "red",
                   }}
                 >
-                  At least 8 characters
+                  Length Between 8-12 characters
                 </li>
                 <li
                   style={{

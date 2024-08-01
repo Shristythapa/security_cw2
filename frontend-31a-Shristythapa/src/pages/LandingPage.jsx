@@ -4,14 +4,17 @@ import aboutImage from "../assets/img/about.jpg";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "../assets/css/start.css";
+
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+
 import { useNavigate } from "react-router-dom";
 
 // Function to get the cookie value by name
 function getCookie(name) {
   const value = `; ${document.cookie}`;
+  console.log(value);
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return parts.pop().split(";").shift();
 }
@@ -19,26 +22,28 @@ function getCookie(name) {
 const Landing = () => {
   const navigate = useNavigate();
 
-  // Function to check if the user is logged in based on the cookie
-  const checkLogin = () => {
-    const token = getCookie("cookieHTTP");
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        console.log("Decoded Token:", decodedToken);
+  const checkLogin = async () => {
+    try {
+      const response = await axios.post(
+        "https://localhost:5000/api/validate-token",
+        {},
+        { withCredentials: true }
+      );
 
-        // Perform automatic login or set user data in the application state
-        const isMentor = decodedToken.isMentor;
+      if (response.data.valid) {
+        console.log(response.data.user);
+        const user = response.data.user;
+        const isMentor = response.data.user.isMentor;
         if (isMentor) {
-          navigate("/mentor/mentorSessionDashboard");
+          navigate("/mentor/mentorSessionDashboard", { state: { user } });
         } else {
-          navigate("/mentee/menteeSessionDashboard");
+          navigate("/mentee/menteeSessionDashboard", { state: { user } });
         }
-      } catch (error) {
-        console.error("Failed to decode token:", error);
+      } else {
+        console.error("Failed to validate token");
       }
-    } else {
-      console.log("No token found");
+    } catch (error) {
+      console.error("Failed to validate token:", error);
     }
   };
 
@@ -93,7 +98,7 @@ const Landing = () => {
       <body style={{ textDecoration: "none !important" }}>
         <header id="header" className="header fixed-top">
           <div className="container-fluid container-xl d-flex align-items-center justify-content-between">
-            <a href="index.html" className="logo d-flex align-items-center">
+            <a className="logo d-flex align-items-center">
               <img src={logo} alt=""></img>
               <span style={{ textDecoration: "none" }}>Mentorship</span>
             </a>

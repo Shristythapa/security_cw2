@@ -1,33 +1,53 @@
 import { useLocation, useNavigate } from "react-router-dom";
-
 import { useRef, useEffect, useState } from "react";
 import io from "socket.io-client";
 import Peer from "peerjs";
 import "../assets/css/style.css";
 import { endCall, startCall } from "../Api/Api";
 import { toast } from "react-toastify";
-
-const VideoPage = () => {
+  
+const VideoCallMentor = () => {
   const navigate = useNavigate();
-
-  // Object Destructuring
   const { state } = useLocation();
   const { ROOM_ID } = state || {};
-
-  //   const [user, setUser] = useState("");
-
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
-
   const [myVideoStream, setMyVideoStream] = useState(null);
-
   const myVideo = document.createElement("video");
-
   const videoGrid = useRef();
-  const user = JSON.parse(localStorage.getItem("user"));
+
 
   useEffect(() => {
-    const socket = io("https://localhost:5000");
+    let socket;
+    try {
+      socket = io("https://localhost:5000", {
+        reconnectionAttempts: 5,
+        reconnectionDelay: 2000,
+        timeout: 20000,
+        transports: ["websocket"],
+      });
+    } catch (error) {
+      console.error("Error connecting to socket.io server:", error);
+      toast.error("Unable to connect to the server. Please try again later.");
+      return;
+    }
+
+    socket.on("connect_error", (error) => {
+      if (error.message === "xhr poll error") {
+        return;
+      }
+      console.error("Connection error:", error);
+      toast.error(
+        "Connection error. Please check your network or server status."
+      );
+    });
+
+    socket.on("reconnect_failed", () => {
+      toast.error(
+        "Reconnection attempts failed. Please refresh the page or try again later."
+      );
+    });
+
     myVideo.muted = true;
     console.log("ROOM ID", ROOM_ID);
 
@@ -82,9 +102,17 @@ const VideoPage = () => {
       })
       .catch((error) => {
         console.error("Error accessing media devices.", error);
-        toast.error("Media not found. Proceeding without media stream.");
+        if (
+          error.name === "PermissionDeniedError" ||
+          error.name === "NotAllowedError"
+        ) {
+          toast.error(
+            "Camera and microphone permissions are blocked. Please allow permissions to use video chat."
+          );
+        } else {
+          toast.error("Media not found. Proceeding without media stream.");
+        }
 
-        // Proceed without media stream
         setupPeerCallHandling(peer, null);
         setupSocketEvents(socket, peer, null);
       });
@@ -92,7 +120,7 @@ const VideoPage = () => {
     const setupPeerCallHandling = (peer, stream) => {
       peer.on("call", (call) => {
         console.log("Incoming call", call);
-        call.answer(stream); // Answer with or without the stream
+        call.answer(stream);
         const video = document.createElement("video");
         call.on("stream", (userVideoStream) => {
           addVideoStream(video, userVideoStream);
@@ -114,7 +142,7 @@ const VideoPage = () => {
     const connectToNewUser = (userId, peer, stream) => {
       console.log("Calling user", userId);
       if (!document.querySelector(`video[data-peer-id="${userId}"]`)) {
-        const call = peer.call(userId, stream); // Call with or without the stream
+        const call = peer.call(userId, stream);
         const video = document.createElement("video");
 
         call.on("stream", (userVideoStream) => {
@@ -180,87 +208,17 @@ const VideoPage = () => {
     }
   };
 
-  const callEnd = () => {
-    if (myVideoStream) {
-      const videoTrack = myVideoStream.getVideoTracks()[0];
-      const audioTrack = myVideoStream.getAudioTracks()[0];
-
-      if (videoTrack) videoTrack.stop();
-      if (audioTrack) audioTrack.stop();
-
-      if (user._id == state.mentorId) {
-        endCall(state._id);
-      }
-    }
-
-    navigate(-1);
-  };
-
   return (
-    <div>
-      <div style={{ backgroundColor: "#501366" }} className="header">
-        <div className="logo">
-          <div className="header__back">
-            <i className="fas fa-angle-left"></i>
-          </div>
-          <h3 style={{ fontFamily: "monospace" }}>Video Chat</h3>
-        </div>
-      </div>
-      <div className="main">
-        <div
-          className="videos__group"
-          style={{ minHeight: "100vh ", overflowY: "auto" }}
-        >
-          <div id="video-grid" ref={videoGrid}></div>
-        </div>
-
-        <div className="options" style={{ backgroundColor: "#501366" }}>
-          <div className="options__left">
-            <div
-              style={{ backgroundColor: "#EEA025" }}
-              id="stopVideo"
-              onClick={muteButtonHandler}
-              className="options__button"
-            >
-              {/* Your component content */}
-
-              {isAudioMuted ? (
-                <i class="bi bi-mic-mute-fill"></i>
-              ) : (
-                <i class="bi bi-mic-fill"></i>
-              )}
-
-              {/* <i class="bi bi-mic"></i> */}
-            </div>
-            <div
-              style={{ backgroundColor: "#EEA025" }}
-              id="muteButton"
-              onClick={toggleVideoHandler}
-              className="options__button"
-            >
-              {/* Your component content */}
-
-              {isVideoPaused ? (
-                <i class="bi bi-camera-video-off-fill"></i>
-              ) : (
-                <i class="bi bi-camera-video-fill"></i>
-              )}
-
-              {/* <i class="bi bi-camera-video"></i> */}
-            </div>
-            <div
-              style={{ backgroundColor: "#EEA025" }}
-              id="callEnd"
-              onClick={callEnd}
-              className="options__button"
-            >
-              <i class="bi bi-telephone-x"></i>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div ref={videoGrid} className="video-grid">
+      {/* Other UI components */}
+      <button onClick={toggleVideoHandler}>
+        {isVideoPaused ? "Resume Video" : "Pause Video"}
+      </button>
+      <button onClick={muteButtonHandler}>
+        {isAudioMuted ? "Unmute" : "Mute"}
+      </button>
     </div>
   );
 };
 
-export default VideoPage;
+export default VideoCallMentor;

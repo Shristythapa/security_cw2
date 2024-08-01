@@ -27,100 +27,90 @@ import UpdatePassword from "./pages/UpdatePassword";
 import PasswordResetSuccess from "./pages/PasswordResetSuccess";
 import VideoCallMentor from "./pages/mentor/VideoCallMentor";
 import VideoCallMentee from "./pages/mentee/VideoCallMentee";
-import VideoCall from "./pages/mentor/videocall";
+import axios from "axios";
+
+
 library.add(faEnvelope, faLock);
 
+axios.defaults.withCredentials = true;
+
 function App() {
+
+  
   return (
-    <Router>
-      <ToastContainer></ToastContainer>
 
-      <Routes>
-        {/* public routes */}
-        <Route path="/" element={<Landing></Landing>}></Route>
-        <Route path="/signup" element={<Signup></Signup>}></Route>
-        <Route path="/login" element={<Login></Login>}></Route>
-        <Route path="/mentorForm" element={<MentorForm></MentorForm>}></Route>
+      <Router>
+        <ToastContainer></ToastContainer>
 
-        {/* route to enter email and change and role to chaange pass */}
-        <Route
-          path="/changePassword"
-          element={<ForgotPassword></ForgotPassword>}
-        ></Route>
+        <Routes>
+          {/* public routes */}
+          <Route path="/" element={<Landing></Landing>}></Route>
+          <Route path="/signup" element={<Signup></Signup>}></Route>
+          <Route path="/login" element={<Login></Login>}></Route>
+          <Route path="/mentorForm" element={<MentorForm></MentorForm>}></Route>
 
-        {/* if mentor enter new pass to update */}
-        <Route
-          path="/resetMentorPassword/:id/:token"
-          element={<UpdatePassword></UpdatePassword>}
-        ></Route>
-
-        {/* if mentee enter new pass to update */}
-        <Route></Route>
-
-        <Route
-          path="/passwordResetSuccess"
-          element={<PasswordResetSuccess></PasswordResetSuccess>}
-        ></Route>
-        {/* 
-        <Route
-          path="/mentorPublicProfile"
-          element={<MentorPublicProfile></MentorPublicProfile>}
-        ></Route> */}
-        <Route path="/video_call/:id" element={<VideoPage></VideoPage>}></Route>
+          {/* route to enter email and change and role to chaange pass */}
+          <Route
+            path="/changePassword"
+            element={<ForgotPassword></ForgotPassword>}
+          ></Route>
+          <Route
+            path="/resetMentorPassword/:id/:token"
+            element={<UpdatePassword></UpdatePassword>}
+          ></Route>
+          <Route
+            path="/passwordResetSuccess"
+            element={<PasswordResetSuccess></PasswordResetSuccess>}
+          ></Route>
+          {/* 
+    
+     
 
         {/* mentor routes */}
-        <Route path="mentor" element={<MentorDashboard></MentorDashboard>}>
-          <Route
-            path="mentorSessionDashboard"
-            element={<MentorSessions></MentorSessions>}
-          ></Route>
+          <Route path="mentor" element={<MentorDashboard></MentorDashboard>}>
+            <Route
+              path="mentorSessionDashboard"
+              element={<MentorSessions></MentorSessions>}
+            ></Route>
 
-          <Route
-            path="mentorArticleDashboard"
-            element={<MentorArticles></MentorArticles>}
-          ></Route>
-        </Route>
-        {/* <Route
-          path="/mentorPublicProfileForMentor/:id"
-          element={<MentorPPForMentor></MentorPPForMentor>}
-        ></Route> */}
+            <Route
+              path="mentorArticleDashboard"
+              element={<MentorArticles></MentorArticles>}
+            ></Route>
+          </Route>
 
-        {/* mentee routes */}
-        <Route path="mentee" element={<MenteeDashboard></MenteeDashboard>}>
-          <Route
-            path="menteeSessionDashboard"
-            element={<Sessions></Sessions>}
-          ></Route>
-          <Route
-            path="menteeMentorDashboard"
-            element={<Mentors></Mentors>}
-          ></Route>
-          <Route
-            path="menteeArticleDashboard"
-            element={<MenteeArticles></MenteeArticles>}
-          ></Route>
+          {/* mentee routes */}
+          <Route path="mentee" element={<MenteeDashboard></MenteeDashboard>}>
+            <Route
+              path="menteeSessionDashboard"
+              element={<Sessions></Sessions>}
+            ></Route>
+            <Route
+              path="menteeMentorDashboard"
+              element={<Mentors></Mentors>}
+            ></Route>
+            <Route
+              path="menteeArticleDashboard"
+              element={<MenteeArticles></MenteeArticles>}
+            ></Route>
+          </Route>
 
-          {/* <Route
-                  path="menteeDashboard"
-                  element={<MenteeDashboard></MenteeDashboard>}
-                ></Route> */}
-        </Route>
+          {/* </Route> */}
+          <Route
+            path="/mentorPublicProfileForMentee/:id"
+            element={<MentorPPForMentee></MentorPPForMentee>}
+          ></Route>
+          <Route
+            path="mentor_video_call/:id"
+            element={<VideoCallMentor></VideoCallMentor>}
+          ></Route>
+          <Route
+            path="mentee_video_call/:id"
+            element={<VideoCallMentee />}
+          ></Route>
+        </Routes>
+      </Router>
 
-        {/* </Route> */}
-        <Route
-          path="/mentorPublicProfileForMentee/:id"
-          element={<MentorPPForMentee></MentorPPForMentee>}
-        ></Route>
-        <Route
-          path="mentor_video_call/:id"
-          element={<VideoCallMentor></VideoCallMentor>}
-        ></Route>
-        <Route
-          path="mentee_video_call/:id"
-          element={<VideoCallMentee />}
-        ></Route>
-      </Routes>
-    </Router>
   );
 }
 

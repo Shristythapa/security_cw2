@@ -1,94 +1,45 @@
 const jwt = require("jsonwebtoken");
 
-const mentorAuthGuard = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.json({
-      success: false,
-      message: "Authorization header not found",
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
+const isMentor = (req, res, next) => {
+  const token = req.cookies.cookieHTTP;
 
   if (!token) {
-    return res.json({
-      message: "Token not found",
-      success: false,
-    });
+    return res.json({ message: "Authentication failed: Token not found" });
   }
 
-  try {
-    const decodeUser = jwt.verify(token, process.env.JWT_TOKEN_SECRET);
-    req.user = decodeUser;
-
-    console.log(req.user);
-
-    if (!req.user.mentor) {
-      return res.json({
-        success: false,
-        message: "Permission denied!!! :(",
-      });
+  jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.json({ message: "Authentication failed: Invalid token" });
     }
 
-    //check if user is admin or not
-
-    next();
-  } catch (e) {
-    res.json({
-      message: "Inavalid token",
-      success: false,
-    });
-  }
-  console.log(req.headers);
+    if (decoded.isMentor) {
+      req.user = decoded;
+      next();
+    } else {
+      return res.json({ message: "Access denied: Requires Mentor role" });
+    }
+  });
 };
 
-const menteeAuthGuard = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.json({
-      success: false,
-      message: "Authorization header not found",
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
+const isMentee = (req, res, next) => {
+  const token = req.cookies.cookieHTTP;
 
   if (!token) {
-    return res.json({
-      message: "Token not found",
-      success: false,
-    });
+    return res.json({ message: "Authentication failed: Token not found" });
   }
 
-  try {
-    const decodeUser = jwt.verify(token, process.env.JWT_TOKEN_SECRET);
-    req.user = decodeUser;
-
-    console.log(req.user);
-
-    if (req.user.mentor) {
-      return res.json({
-        success: false,
-        message: "Permission denied!!! :(",
-      });
+  jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.json({ message: "Authentication failed: Invalid token" });
     }
 
-    //check if user is admin or not
-
-    next();
-  } catch (e) {
-    res.json({
-      message: "Inavalid token",
-      success: false,
-    });
-  }
-  console.log(req.headers);
+    if (!decoded.isMentor) {
+      req.user = decoded;
+      next();
+    } else {
+      return res.json({ message: "Access denied: Requires Mentee role" });
+    }
+  });
 };
 
-module.exports = {
-  mentorAuthGuard,
-  menteeAuthGuard
-};
+module.exports = { isMentor, isMentee };

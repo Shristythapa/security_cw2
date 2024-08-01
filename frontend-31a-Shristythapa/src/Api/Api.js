@@ -66,3 +66,4 @@ export const startCall = (id) => Api.put(`/session/startSession/${id}`);
 export const endCall = (id) => Api.put(`/session/endCall/${id}`);
 
 export const verifyRecaptcha = (data) => Api.post("/captcha/postCaptcha", data);
+export const validatCookie = () => Api.post("/api/validate-token");

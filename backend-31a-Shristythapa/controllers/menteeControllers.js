@@ -9,6 +9,7 @@ const Mentee = require("../model/mentee");
 
 const validatePassword = (password) => {
   const minLength = 8;
+  const maxLength = 12;
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);
   const hasNumbers = /[0-9]/.test(password);
@@ -16,6 +17,7 @@ const validatePassword = (password) => {
 
   if (
     password.length >= minLength &&
+    password.length < maxLength &&
     hasUpperCase &&
     hasLowerCase &&
     hasNumbers &&
@@ -47,7 +49,7 @@ const signUpMentee = async (req, res) => {
   }
 
   if (!profilePicture) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Please upload Image",
     });
@@ -60,7 +62,7 @@ const signUpMentee = async (req, res) => {
     const existingMentee = await Mentees.findOne({ email: email });
     if (existingMentee) {
       console.log("user already exist");
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "User already exists",
       });
@@ -79,23 +81,22 @@ const signUpMentee = async (req, res) => {
       email: email,
       password: encryptedPassword,
       profileUrl: uploadedImage.secure_url,
-      passwordLastUpdated: Date.now(), 
+      passwordLastUpdated: Date.now(),
     });
 
     await newMentee.save();
 
-    // Check if the mentee already exists in MenteePasswords collection
     let passwordEntry = await MenteePaswords.findOne({
       userId: newMentee._id,
     });
 
-    // If the entry does not exist, create a new one
     passwordEntry = new MenteePaswords({
       userId: newMentee._id,
       passwords: [encryptedPassword],
     });
 
     await passwordEntry.save();
+
     return res.status(200).json({
       success: true,
       message: "User created sucessfully.",
@@ -108,46 +109,47 @@ const signUpMentee = async (req, res) => {
     });
   }
 };
-
 const loginMentee = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Please enter all fields.",
     });
   }
 
   try {
-    const mentee = await Mentees.findOne({ email: email }); //user stores all data of the users
+    const mentee = await Mentees.findOne({ email: email });
 
     if (!mentee) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "User not found",
       });
     }
 
-    console.log(mentee);
-
-    const passwordToCompare = mentee.password;
-    const isMatch = bycrypt.compare(password, passwordToCompare);
+    // Await the result of bcrypt.compare
+    const isMatch = await bycrypt.compare(password, mentee.password);
 
     if (!isMatch) {
-      console.log("password doesn't match");
-      return res.status(400).json({
+      return res.json({
         success: false,
-        message: "Password dosen't match",
+        message: "Password doesn't match",
       });
     }
-    console.log("password match");
 
     const token = jwt.sign(
-      { id: mentee._id, isMentor: false, email: mentee.email },
+      {
+        id: mentee._id,
+        name: mentee.name,
+        email: mentee.email,
+        profileUrl: mentee.profileUrl,
+        isMentor:false
+      },
       process.env.JWT_TOKEN_SECRET
     );
-    console.log("token", token);
+
     const cookieOptions = {
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       httpOnly: true,
@@ -159,14 +161,13 @@ const loginMentee = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      mentee: mentee,
-      message: "User loged in Sucessfully",
+      message: "User logged in successfully",
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: error,
+      message: "Server error",
     });
   }
 };
@@ -178,7 +179,6 @@ const changePassword = async (req, res) => {
     return res.json({
       message: "Enter email",
       success: false,
-      status: 400,
     });
   }
   Mentees.findOne({ email: email }).then((user) => {
@@ -186,7 +186,6 @@ const changePassword = async (req, res) => {
       return res.json({
         message: "User not existed",
         success: false,
-        status: 400,
       });
     }
     const token = jwt.sign({ id: user._id }, "jwt_secret_key", {
@@ -225,9 +224,7 @@ const updatePassword = async (req, res) => {
 
     // Validate input
     if (!id || !password || !token) {
-      return res
-        .status(400)
-        .json({ error: "User ID, password, and token are required" });
+      return res.json({ error: "User ID, password, and token are required" });
     }
 
     // Fetch all password records for the user

@@ -12,7 +12,7 @@ function ForgotPassword() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (role == "mentor") {
-      console.log("forgot passsword menbtor");
+      // console.log("forgot passsword menbtor");
       try {
         forgotPasswordMentor({ email: email }).then((res) => {
           if (res.data.success == true) {

@@ -4,6 +4,8 @@ import io from "socket.io-client";
 import Peer from "peerjs";
 import { endCall, startCall } from "../../Api/Api";
 import { toast } from "react-toastify";
+import { useUser } from "../../context/UserContext";
+
 const VideoCallMentor = () => {
   //get session id
   const navigate = useNavigate();
@@ -17,10 +19,39 @@ const VideoCallMentor = () => {
   const myVideo = document.createElement("video");
 
   const videoGrid = useRef();
-  const user = JSON.parse(localStorage.getItem("user"));
+ const user = useUser();
 
   useEffect(() => {
-    const socket = io.connect("http://localhost:5000");
+    let socket;
+    try {
+      socket = io("https://localhost:5000", {
+        reconnectionAttempts: 5,
+        reconnectionDelay: 2000,
+        timeout: 20000,
+        transports: ["websocket"],
+      });
+    } catch (error) {
+      console.error("Error connecting to socket.io server:", error);
+      toast.error("Unable to connect to the server. Please try again later.");
+      return;
+    }
+
+    socket.on("connect_error", (error) => {
+      if (error.message === "xhr poll error") {
+        return;
+      }
+      console.error("Connection error:", error);
+      toast.error(
+        "Connection error. Please check your network or server status."
+      );
+    });
+
+    socket.on("reconnect_failed", () => {
+      toast.error(
+        "Reconnection attempts failed. Please refresh the page or try again later."
+      );
+    });
+
     myVideo.muted = true;
     console.log("rOOM ID", state);
 
@@ -60,39 +91,58 @@ const VideoCallMentor = () => {
       socket.emit("join-room", state, id, user._id);
     });
 
+    if (user._id === state.mentorId) {
+      startCall(state._id);
+    }
+
     navigator.mediaDevices
-      .getUserMedia({
-        audio: true,
-        video: true,
-      })
+      .getUserMedia({ audio: true, video: true })
       .then((stream) => {
-        //handle current user call and streem
         setMyVideoStream(stream);
         addVideoStream(myVideo, stream, user._id);
-        console.log("streeming");
-        startCall(state);
-        //handle incomming call and streem
-        peer.on("call", (call) => {
-          console.log(call);
-          console.log("someone call me");
-          call.answer(stream);
-          const video = document.createElement("video");
-          call.on("stream", (userVideoStream) => {
-            addVideoStream(video, userVideoStream);
-          });
-        });
+        console.log("streaming");
 
-        //send notification when mentor join
-        socket.emit("mentor-joined", state);
+        setupPeerCallHandling(peer, stream);
+        setupSocketEvents(socket, peer, stream);
+      })
+      .catch((error) => {
+        console.error("Error accessing media devices.", error);
+        if (
+          error.name === "PermissionDeniedError" ||
+          error.name === "NotAllowedError"
+        ) {
+          toast.error(
+            "Camera and microphone permissions are blocked. Please allow permissions to use video chat."
+          );
+        } else {
+          toast.error("Media not found. Proceeding without media stream.");
+        }
 
-        //handle user connection
-        socket.on("user-connected", (userId) => {
-          // toast.success(` ${userId} User Joined`);
-          console.log(userId, "user connected");
-          connectToNewUser(userId, stream);
-        });
+        setupPeerCallHandling(peer, null);
+        setupSocketEvents(socket, peer, null);
       });
 
+    const setupPeerCallHandling = (peer, stream) => {
+      peer.on("call", (call) => {
+        console.log("Incoming call", call);
+        call.answer(stream);
+        const video = document.createElement("video");
+        call.on("stream", (userVideoStream) => {
+          addVideoStream(video, userVideoStream);
+        });
+      });
+    };
+
+    const setupSocketEvents = (socket, peer, stream) => {
+      socket.on("user-connected", (userId) => {
+        console.log(userId, "user connected");
+        connectToNewUser(userId, peer, stream);
+      });
+
+      socket.on("user-disconnected", (userId) => {
+        console.log(userId, "disconnected");
+      });
+    };
     //function to handle user connectioned
     const connectToNewUser = (userId, stream) => {
       console.log("I call someone" + userId);

@@ -26,13 +26,14 @@ const Signup = () => {
 
   const validatePassword = (password) => {
     const minLength = 8;
+    const maxLength = 12;
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
     setCriteria({
-      length: password.length >= minLength,
+      length: password.length >= minLength && password.length < maxLength,
       upperCase: hasUpperCase,
       lowerCase: hasLowerCase,
       number: hasNumber,
@@ -42,6 +43,7 @@ const Signup = () => {
     // Set password validity
     setIsPasswordValid(
       password.length >= minLength &&
+        password.length < maxLength &&
         hasUpperCase &&
         hasLowerCase &&
         hasNumber &&
@@ -70,7 +72,7 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const mentorForm = (username, email, password, profileImage) => {
-    console.log("profile image", profileImage);
+    // console.log("profile image", profileImage);
     navigate("/mentorForm", {
       state: {
         username: username,
@@ -99,7 +101,7 @@ const Signup = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(name, email, password, profileImage);
+    // console.log(name, email, password, profileImage);
     if (!isEmailValid) {
       toast.error("Invalid email format");
       return;
@@ -118,10 +120,10 @@ const Signup = () => {
     formData.append("profilePicture", profileImage);
     console.log(formData);
 
-    console.log("profile image", profileImage);
-    console.log(role);
+    // console.log("profile image", profileImage);
+    // console.log(role);
     if (role === "mentee") {
-      console.log(formData);
+      // console.log(formData);
       createMenteeSignupApi(formData)
         .then((res) => {
           if (res.data.success === false) {
@@ -133,7 +135,7 @@ const Signup = () => {
         })
         .catch((err) => {
           toast.error(err.response.data.message);
-          console.log(err.message);
+          // console.log(err.message);
         });
     } else if (role === "mentor") {
       //route to mentor form page
@@ -283,7 +285,7 @@ const Signup = () => {
                                   color: criteria.length ? "green" : "red",
                                 }}
                               >
-                                At least 8 characters
+                                Length Between 8-12 characters
                               </li>
                               <li
                                 style={{

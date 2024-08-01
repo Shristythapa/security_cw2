@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   createSessionApi,
   findMentorByEmail,
@@ -10,10 +10,11 @@ import { toast } from "react-toastify";
 import { Card, Modal } from "react-bootstrap";
 import { deleteSessionApi } from "../../Api/Api";
 import { format, parseISO } from "date-fns";
+import { useUser } from "../../context/UserContext";
 
 const MentorSessions = () => {
   const navigate = useNavigate();
-  const mentor = JSON.parse(localStorage.getItem("user"));
+   const user = useUser();
 
   // const [mentorId, setMentorId ] = useState(null);
   const [title, setTitle] = useState(
@@ -26,7 +27,6 @@ const MentorSessions = () => {
 
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
-
 
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -41,14 +41,13 @@ const MentorSessions = () => {
     setShowModal(false);
   };
 
-
   // create session function
   const handleCreateSession = async (e) => {
     e.preventDefault();
 
     const formateDate = new Date(selectedDate);
 
-    const res = await findMentorByEmail(mentor.email);
+    const res = await findMentorByEmail(user.email);
     if (res.data.success == false) {
       return toast.error(res.data.message);
     }
@@ -62,7 +61,7 @@ const MentorSessions = () => {
         !description ||
         !selectedDate ||
         !startTime ||
-        !endTime )
+        !endTime)
     ) {
       return toast.error("Enter all feilds");
     }
@@ -78,7 +77,6 @@ const MentorSessions = () => {
       date: formateDate.toISOString().split("T")[0],
       startTime: startTime,
       endTime: endTime,
-   
     };
 
     createSessionApi(data)
@@ -91,7 +89,7 @@ const MentorSessions = () => {
       })
       .catch((err) => {
         // toast.error("Server error");
-         toast.error(err.response.data.message);
+        toast.error(err.response.data.message);
         console.log(err.message);
       });
     getSessions();
@@ -101,7 +99,8 @@ const MentorSessions = () => {
   const [sessions, setSessions] = useState([]);
 
   const getSessions = () => {
-    const myEmail = JSON.parse(localStorage.getItem("user")).email;
+    console.log(user);
+    const myEmail = user.email;
     findMentorByEmail(myEmail).then((mentorResponse) => {
       const mentorId = mentorResponse.data.mentor._id;
 
@@ -110,7 +109,6 @@ const MentorSessions = () => {
       });
     });
   };
-  
 
   useEffect(() => {
     getSessions();
@@ -277,9 +275,6 @@ const MentorSessions = () => {
                       type="time"
                       className="form-control mb-2"
                     />
-
-            
-                 
                   </form>
                 </div>
                 <div className="modal-footer">
@@ -339,9 +334,7 @@ const MentorSessions = () => {
                     {session.description}
                   </Card.Subtitle>
 
-                  <div className="d-flex align-items-center">
-                
-                  </div>
+                  <div className="d-flex align-items-center"></div>
 
                   <button
                     // style={{ backgroundColor: "#EEA025", color: "#fff" }}

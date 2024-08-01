@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import FloatingActionButton from "../../components/FloatingActionButton";
 import Article from "../../components/Article";
 import ArticleMentor from "../../components/ArticleMentor";
+import { useUser } from "../../context/UserContext";
 
 const MentorArticles = () => {
   const fabStyle = {
@@ -20,8 +21,8 @@ const MentorArticles = () => {
     color: "white",
   };
 
-  const mentor = JSON.parse(localStorage.getItem("user"));
-
+  const user = useUser();
+  const mentor=user;
   const [title, setTitle] = useState("Why Is Web Design Important?");
   const [description, setDescription] = useState(" As you look into redesigning your website, you may wonder the importance to website design. How does it impact your audience and your business? Let’s look at five reasons web design is important. It sets the first impression When your audience visits your website, it gives them their first impression of your business. They will judge your business within seconds. In these first few seconds, you want to make a positive impact on your audience. If your website looks unappealing or outdated, your audience will immediately have a negative impression of your business. They won’t find your website appealing, which deters them from your page. You’ll miss out on leads because they’ll leave your page for a competitor’s page. Web design is important because it impacts how your audience perceives your brand. The impression you make on them can either get them to remain on your page and learn about your business or leave your page and turn to a competitor. A good web design helps you keep your leads on your page.");
   const [isMyArticles, setIsMyArticles] = useState(false);

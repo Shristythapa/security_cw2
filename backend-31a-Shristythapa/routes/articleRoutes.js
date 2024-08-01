@@ -1,13 +1,9 @@
 const router = require("express").Router();
 const articleController = require("../controllers/articleController");
-const { mentorAuthGuard } = require("../middleware/authguard");
+const { isMentor } = require("../middleware/authguard");
 
 router.post("/createArticle", articleController.createArticle);
-router.delete(
-  "/deleteArticle/:id",
-  articleController.deleteArticle,
-  mentorAuthGuard
-);
+router.delete("/deleteArticle/:id", articleController.deleteArticle, isMentor);
 router.get("/findAllArticles", articleController.getAllArticle);
 
 module.exports = router;

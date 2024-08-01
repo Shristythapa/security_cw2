@@ -5,9 +5,11 @@ const jwt = require("jsonwebtoken");
 const { add } = require("date-fns");
 const nodemailer = require("nodemailer");
 const MentorPasswords = require("../model/passwordMentor");
+const { id } = require("date-fns/locale");
 
 const validatePassword = (password) => {
   const minLength = 8;
+  const maxLength = 12;
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);
   const hasNumbers = /[0-9]/.test(password);
@@ -15,6 +17,7 @@ const validatePassword = (password) => {
 
   if (
     password.length >= minLength &&
+    password.length < maxLength &&
     hasUpperCase &&
     hasLowerCase &&
     hasNumbers &&
@@ -58,7 +61,7 @@ const signUpMentor = async (req, res) => {
   }
   const isPasswordValid = validatePassword(password);
   if (!isPasswordValid) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message:
         "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
@@ -66,7 +69,7 @@ const signUpMentor = async (req, res) => {
   }
 
   if (!profilePicture) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Please upload Image",
     });
@@ -78,7 +81,7 @@ const signUpMentor = async (req, res) => {
 
     const existingMentor = await Mentor.findOne({ email: email });
     if (existingMentor) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "User already exists",
       });
@@ -110,14 +113,14 @@ const signUpMentor = async (req, res) => {
     await newMentor.save();
 
     console.log(newMentor._id);
-    let passwordEntry = await MentorPaswords.findOne({
+    let passwordEntry = await MentorPasswords.findOne({
       userId: newMentor._id,
     });
 
     if (passwordEntry) {
       passwordEntry.passwords.push(encryptedPassword);
     } else {
-      passwordEntry = new MentorPaswords({
+      passwordEntry = new MentorPasswords({
         userId: newMentor._id,
         passwords: [encryptedPassword],
       });
@@ -130,6 +133,7 @@ const signUpMentor = async (req, res) => {
       message: "User created successfully.",
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: "Server error",
@@ -141,7 +145,7 @@ const loginMentor = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({
+    return res.json({
       success: false,
       message: "Please enter all fields.",
     });
@@ -150,7 +154,8 @@ const loginMentor = async (req, res) => {
   try {
     const mentor = await Mentor.findOne({ email: email }); //user stores all data of the users
     if (!mentor) {
-      return res.status(400).json({
+      console.log("mentor not found");
+      return res.json({
         success: false,
         message: "Mentor not found",
       });
@@ -160,14 +165,21 @@ const loginMentor = async (req, res) => {
     const isMatch = await bycrypt.compare(password, passwordToCompare);
 
     if (!isMatch) {
-      return res.status(400).json({
+      console.log("password didn't match");
+      return res.json({
         success: false,
         message: "Password dosen't match",
       });
     }
 
     const token = jwt.sign(
-      { id: mentor._id, isMentor: true, email: mentor.email },
+      {
+        id: mentor._id,
+        name: mentor.name,
+        email: mentor.email,
+        profileUrl: mentor.profileUrl,
+        isMentor:true
+      },
       process.env.JWT_TOKEN_SECRET
     );
 
@@ -179,14 +191,15 @@ const loginMentor = async (req, res) => {
     };
 
     res.cookie("cookieHTTP", token, cookieOptions);
+    console.log("cookie set");
 
     return res.status(200).json({
       success: true,
-      mentor: mentor,
       message: "User loged in Sucessfully",
     });
   } catch (error) {
-    return res.status(400).json({
+    console.log(error);
+    return res.json({
       success: false,
       message: error,
     });
@@ -200,7 +213,7 @@ const findByEmail = async (req, res) => {
     const user = await Mentor.findOne({ email: email });
 
     if (!user) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "Mentor doesn't exist",
       });
@@ -224,7 +237,7 @@ const getMentorById = async (req, res) => {
     const mentorId = req.params.id;
 
     if (!mentorId) {
-      return res.status(400).json({ error: "Invalid mentor ID" });
+      return res.json({ error: "Invalid mentor ID" });
     }
     const mentor = await Mentor.findById(mentorId);
     if (!mentor) {
@@ -241,7 +254,7 @@ const getMentorProfile = async (req, res) => {
   try {
     const myMentor = await Mentor.findOne({ email: req.params.email });
     if (!myMentor) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "Mentor doesn't exist",
       });
@@ -264,7 +277,7 @@ const getAllMentors = async (req, res) => {
     const mentors = await Mentor.find();
 
     if (!mentors) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         messgae: "Mentors not",
       });
@@ -286,16 +299,14 @@ const changePassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({
+    return res.json({
       message: "Enter email",
       success: false,
     });
   }
   Mentor.findOne({ email: email }).then((user) => {
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: "User not existed", success: false });
+      return res.json({ message: "User not existed", success: false });
     }
     const token = jwt.sign({ id: user._id }, "jwt_secret_key", {
       expiresIn: "1h",
@@ -332,9 +343,7 @@ const updatePassword = async (req, res) => {
 
     // Validate input
     if (!id || !password || !token) {
-      return res
-        .status(400)
-        .json({ message: "User ID, password, and token are required" });
+      return res.json({ message: "User ID, password, and token are required" });
     }
 
     // Fetch all password records for the user
@@ -354,9 +363,7 @@ const updatePassword = async (req, res) => {
         for (const oldPassword of record.passwords) {
           const match = await bycrypt.compare(password, oldPassword);
           if (match) {
-            return res
-              .status(400)
-              .json({ message: "Can't repeat previous passwords" });
+            return res.json({ message: "Can't repeat previous passwords" });
           }
         }
       }

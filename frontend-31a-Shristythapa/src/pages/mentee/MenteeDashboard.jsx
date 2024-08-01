@@ -2,10 +2,14 @@ import { Outlet } from "react-router-dom";
 import MenteeNavbar from "./MenteeNavbar";
 import io from "socket.io-client"; // Import socket.io-client
 import { getSessionById } from "../../Api/Api";
-import { React, useState, useEffect } from "react";
+import { React, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
+import { UserProvider } from "../../context/UserContext";
 const MenteeDashboard = () => {
  
+  const location = useLocation();
+  const { user } = location.state || {};
 
   useEffect(() => {
     const socket = io("https://localhost:5000"); 
@@ -31,30 +35,29 @@ const MenteeDashboard = () => {
   }, []);
   return (
     <>
-      <div className="container-fluid" style={{ width: "100vw" }}>
-        <div className="row">
-          {/* Sidebar */}
-          {/* <MenteeSidebar></MenteeSidebar> */}
+      <UserProvider user={user}>
+        <div className="container-fluid" style={{ width: "100vw" }}>
+          <div className="row">
+            {/* Navbar */}
+            <MenteeNavbar></MenteeNavbar>
+          </div>
 
-          {/* Navbar */}
-          <MenteeNavbar></MenteeNavbar>
-        </div>
-
-        {/* Main content */}
-        <div
-          className="row"
-          style={{
-            color: "#EEA025",
-            minWidth: "100vw",
-            minHeight: "100vh",
-            backgroundColor: "#F7F8FC",
-          }}
-        >
-          <div className="col">
-            <Outlet></Outlet>
+          {/* Main content */}
+          <div
+            className="row"
+            style={{
+              color: "#EEA025",
+              minWidth: "100vw",
+              minHeight: "100vh",
+              backgroundColor: "#F7F8FC",
+            }}
+          >
+            <div className="col">
+              <Outlet></Outlet>
+            </div>
           </div>
         </div>
-      </div>
+      </UserProvider>
     </>
   );
 };

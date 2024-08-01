@@ -1,18 +1,18 @@
 const router = require("express").Router();
 const sessionController = require("../controllers/sessionController");
-const { mentorAuthGuard } = require("../middleware/authguard");
-const { menteeAuthGuard } = require("../middleware/authguard");
+const { isMentor } = require("../middleware/authguard");
+const { isMentee } = require("../middleware/authguard");
 
-router.post("/create", sessionController.createSession, mentorAuthGuard);
+router.post("/create", sessionController.createSession, isMentor);
 router.get("/getAllSessions", sessionController.getAllSessions);
 router.post("/deleteSession/:id", sessionController.deleteSessions);
 router.get("/getSessionById/:id", sessionController.getSessionById);
-router.put("/joinSession/:id", sessionController.joinSession, menteeAuthGuard);
+router.put("/joinSession/:id", sessionController.joinSession, isMentee);
 router.get("/mentorSessions/:id", sessionController.getSessionsByMentorId);
 router.put(
   "/startSession/:id",
   sessionController.startSession,
-  mentorAuthGuard
+  isMentor
 );
-router.put("/endCall/:id", sessionController.endCall, mentorAuthGuard);
+router.put("/endCall/:id", sessionController.endCall, isMentor);
 module.exports = router;

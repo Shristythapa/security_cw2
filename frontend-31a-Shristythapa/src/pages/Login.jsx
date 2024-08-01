@@ -28,65 +28,86 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (!isEmailValid) {
       toast.error("Invalid email format");
       return;
     }
+
     const data = {
       email: email,
       password: password,
     };
 
     const formData = { captcha: captchaRef };
-    console.log(formData)
+    // console.log(formData);
+
     verifyRecaptcha(formData).then((res) => {
       if (res.data.success) {
         if (role === "mentee") {
           loginMenteeApi(data)
             .then((res) => {
-              console.log(res);
+              console.log(res.data);
               if (res.data.success === false) {
-                console.log("success false ");
-                console.log(res.message);
-                toast.error(res.message);
+                // Check for rate limit exceeded error
+                if (res.status === 429) {
+                  toast.error(
+                    "Too many login attempts. Please try again later."
+                  );
+                } else {
+                  toast.error(res.data.message);
+                }
               } else {
                 toast.success(res.data.message);
-
-                //set token and user data in local storage
-                localStorage.setItem("token", res.data.token);
-                console.log(res);
-                console.log(res.data.mentee);
-                //set use await ref.read(spotifyViewModelProvider.notifier).login();r data
-                const jsonDecode = JSON.stringify(res.data.mentee);
-                localStorage.setItem("user", jsonDecode);
-                localStorage.setItem("role", false);
+                console.log(res.data);
+                // Set token and user data in local storage
+                // localStorage.setItem("token", res.data.token);
+                // const jsonDecode = JSON.stringify(res.data.mentee);
+                // localStorage.setItem("user", jsonDecode);
+                // localStorage.setItem("role", false);
                 navigate("/mentee/menteeSessionDashboard");
               }
             })
             .catch((err) => {
-              toast.error(err.response.data.message);
-              console.log(err.message);
+              if (err.response && err.response.status === 429) {
+                toast.error("Too many login attempts. Please try again later.");
+              } else {
+                toast.error(err.response?.data?.message || "An error occurred");
+              }
+              // console.log(err.message);
             });
         } else if (role === "mentor") {
           loginMentorApi(data)
             .then((res) => {
-              console.log(res);
+              console.log(res.data);
               if (res.data.success === false) {
-                //add toast to show error message
-                toast.error(res.data.message);
+                if (res.status === 429) {
+                  toast.error(
+                    "Too many login attempts. Please try again later."
+                  );
+                } else {
+                  toast.error(res.data.message);
+                }
               } else {
                 toast.success(res.data.message);
+                console.log(res.data);
 
-                //set user data
-                const jsonDecode = JSON.stringify(res.data.mentor);
-                localStorage.setItem("user", jsonDecode);
-                localStorage.setItem("role", true);
+                // // Set user data
+                // const jsonDecode = JSON.stringify(res.data.mentor);
+                // localStorage.setItem("user", jsonDecode);
+                // localStorage.setItem("role", true);
                 navigate("/mentor/mentorSessionDashboard");
               }
             })
             .catch((err) => {
-              toast.error(err.response.data.message);
-              console.log(err.message);
+              if (err.response && err.response.status === 429) {
+                toast.error(
+                  "Too many login attempts. Please try again after 15 min pls."
+                );
+              } else {
+                toast.error(err.response?.data?.message || "An error occurred");
+              }
+              // console.log(err.message);
             });
         } else {
           toast.error("Enter all items");
