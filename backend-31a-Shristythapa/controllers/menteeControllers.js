@@ -139,25 +139,13 @@ const loginMentee = async (req, res) => {
       });
     }
 
-    const token = jwt.sign(
-      {
-        id: mentee._id,
-        name: mentee.name,
-        email: mentee.email,
-        profileUrl: mentee.profileUrl,
-        isMentor:false
-      },
-      process.env.JWT_TOKEN_SECRET
-    );
-
-    const cookieOptions = {
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
+    req.session.user = {
+      id: mentee._id,
+      name: mentee.name,
+      email: mentee.email,
+      profileUrl: mentee.profileUrl,
+      isMentor: false,
     };
-
-    res.cookie("cookieHTTP", token, cookieOptions);
 
     return res.status(200).json({
       success: true,

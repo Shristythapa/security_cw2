@@ -2,14 +2,15 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { useUser } from "../../context/UserContext";
+import { logout } from "../../Api/Api";
 
 const MentorNavbar = () => {
   const user = useUser();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const handleLogout = (e) => {
+  const handleLogout = async (e) => {
     e.preventDefault();
-    res.clearCookie("cookieHTTP");
+    await logout();
     navigate("/login");
   };
   const toggleMenu = () => {

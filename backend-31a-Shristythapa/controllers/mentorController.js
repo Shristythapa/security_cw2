@@ -172,27 +172,15 @@ const loginMentor = async (req, res) => {
       });
     }
 
-    const token = jwt.sign(
-      {
-        id: mentor._id,
-        name: mentor.name,
-        email: mentor.email,
-        profileUrl: mentor.profileUrl,
-        isMentor:true
-      },
-      process.env.JWT_TOKEN_SECRET
-    );
-
-    const cookieOptions = {
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
+    // Set session data
+    req.session.user = {
+      id: mentor._id,
+      name: mentor.name,
+      email: mentor.email,
+      profileUrl: mentor.profileUrl,
+      isMentor: true,
     };
-
-    res.cookie("cookieHTTP", token, cookieOptions);
-    console.log("cookie set");
-
+    
     return res.status(200).json({
       success: true,
       message: "User loged in Sucessfully",

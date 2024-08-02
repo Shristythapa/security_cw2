@@ -4,28 +4,19 @@ import aboutImage from "../assets/img/about.jpg";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "../assets/css/start.css";
-
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import axios from "axios";
-
 import { useNavigate } from "react-router-dom";
-
-// Function to get the cookie value by name
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  console.log(value);
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-}
 
 const Landing = () => {
   const navigate = useNavigate();
 
   const checkLogin = async () => {
+    console.log("checking going.....");
     try {
       const response = await axios.post(
-        "https://localhost:5000/api/validate-token",
+        "https://localhost:5000/api/validate",
         {},
         { withCredentials: true }
       );

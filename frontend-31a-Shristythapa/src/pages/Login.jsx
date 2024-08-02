@@ -54,18 +54,16 @@ const Login = () => {
                   toast.error(
                     "Too many login attempts. Please try again later."
                   );
+                } else if (res.status == 401) {
+                  toast.error(res.data.message);
+                  navigate("/passwordResetSuccess");
                 } else {
                   toast.error(res.data.message);
                 }
               } else {
                 toast.success(res.data.message);
-                console.log(res.data);
-                // Set token and user data in local storage
-                // localStorage.setItem("token", res.data.token);
-                // const jsonDecode = JSON.stringify(res.data.mentee);
-                // localStorage.setItem("user", jsonDecode);
-                // localStorage.setItem("role", false);
-                navigate("/mentee/menteeSessionDashboard");
+
+                navigate("/");
               }
             })
             .catch((err) => {
@@ -96,7 +94,7 @@ const Login = () => {
                 // const jsonDecode = JSON.stringify(res.data.mentor);
                 // localStorage.setItem("user", jsonDecode);
                 // localStorage.setItem("role", true);
-                navigate("/mentor/mentorSessionDashboard");
+                navigate("/");
               }
             })
             .catch((err) => {

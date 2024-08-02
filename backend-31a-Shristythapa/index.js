@@ -5,10 +5,12 @@ const https = require("https");
 const fs = require("fs");
 const { Server } = require("socket.io");
 const { ExpressPeerServer } = require("peer");
+const MongoStore = require("connect-mongo");
 const cloudinary = require("cloudinary");
 const multiparty = require("connect-multiparty");
-const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
+const session = require("express-session");
+const helmet = require("helmet");
+
 // Read SSL certificate files
 const options = {
   key: fs.readFileSync("./certi/mycert.key"),
@@ -18,12 +20,30 @@ const options = {
 // Create an Express application
 const app = express();
 
-app.use(cookieParser());
 
-// Create an HTTPS server
-const server = https.createServer(options, app);
+app.use(helmet());
 
-// CORS policy
+
+app.use(
+  session({
+    secret: process.env.JWT_TOKEN_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.DB_URL,
+      collectionName: "userSessions",
+    }),
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: "Strict",
+      maxAge: 90 * 60 * 1000,
+    },
+  })
+);
+
+
+//  CORS policy
 const corsPolicy = {
   origin: "https://localhost:3000",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
@@ -31,6 +51,9 @@ const corsPolicy = {
   optionSuccessStatus: 200,
 };
 app.use(cors(corsPolicy));
+
+// Create an HTTPS server
+const server = https.createServer(options, app);
 
 // Create a new Socket.IO server instance
 const io = new Server(server, {
@@ -105,27 +128,8 @@ app.use("/api/mentor", require("./routes/mentorRoutes"));
 app.use("/api/session", require("./routes/sessionRoutes"));
 app.use("/api/article", require("./routes/articleRoutes"));
 app.use("/api/captcha", require("./routes/captchaRoutes"));
+app.use("/api", require("./routes/userSessionsRoutes"));
 
-app.post("/api/validate-token", (req, res) => {
-  const token = req.cookies.cookieHTTP; // Get token from cookie
-  console.log(token);
-  if (!token) {
-    return res.status(401).json({ valid: false });
-  }
-
-  jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      console.log(err);
-      return res.status(401).json({ valid: false });
-    }
-
-    console.log(decoded);
-    res.json({
-      valid: true,
-      user: decoded,
-    });
-  });
-});
 // Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
