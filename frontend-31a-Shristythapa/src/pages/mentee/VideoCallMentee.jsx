@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
 import io from "socket.io-client";
 import Peer from "peerjs";
-import { endCall, startCall } from "../../Api/Api";
+import { endCall } from "../../Api/Api";
 import { toast } from "react-toastify";
 const VideoCallMentee = () => {
   const navigate = useNavigate();

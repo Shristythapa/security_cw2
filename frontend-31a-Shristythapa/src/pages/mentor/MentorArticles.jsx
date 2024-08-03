@@ -22,9 +22,11 @@ const MentorArticles = () => {
   };
 
   const user = useUser();
-  const mentor=user;
+  const mentor = user;
   const [title, setTitle] = useState("Why Is Web Design Important?");
-  const [description, setDescription] = useState(" As you look into redesigning your website, you may wonder the importance to website design. How does it impact your audience and your business? Let’s look at five reasons web design is important. It sets the first impression When your audience visits your website, it gives them their first impression of your business. They will judge your business within seconds. In these first few seconds, you want to make a positive impact on your audience. If your website looks unappealing or outdated, your audience will immediately have a negative impression of your business. They won’t find your website appealing, which deters them from your page. You’ll miss out on leads because they’ll leave your page for a competitor’s page. Web design is important because it impacts how your audience perceives your brand. The impression you make on them can either get them to remain on your page and learn about your business or leave your page and turn to a competitor. A good web design helps you keep your leads on your page.");
+  const [description, setDescription] = useState(
+    " As you look into redesigning your website, you may wonder the importance to website design. How does it impact your audience and your business? Let’s look at five reasons web design is important. It sets the first impression When your audience visits your website, it gives them their first impression of your business. They will judge your business within seconds. In these first few seconds, you want to make a positive impact on your audience. If your website looks unappealing or outdated, your audience will immediately have a negative impression of your business. They won’t find your website appealing, which deters them from your page. You’ll miss out on leads because they’ll leave your page for a competitor’s page. Web design is important because it impacts how your audience perceives your brand. The impression you make on them can either get them to remain on your page and learn about your business or leave your page and turn to a competitor. A good web design helps you keep your leads on your page."
+  );
   const [isMyArticles, setIsMyArticles] = useState(false);
   const [articles, setArticles] = useState([]);
   const [showArticleModal, setShowArticleModal] = useState(false);
@@ -74,7 +76,7 @@ const MentorArticles = () => {
       })
       .catch((err) => {
         // toast.error("Server error");
-         toast.error(err.response.data.message);
+        toast.error(err.response.data.message);
         console.log(err.message);
       });
     getAllArticle().then((res) => {
@@ -110,8 +112,7 @@ const MentorArticles = () => {
     setIsMyArticles((prev) => !prev);
   };
   useEffect(() => {
-    console.log("run use effect");
-
+    console.log("user", user);
     const fetchData = async () => {
       try {
         const res = await getAllArticle();
@@ -120,19 +121,19 @@ const MentorArticles = () => {
         // Filter articles based on the condition
         const filteredArticles = isMyArticles
           ? res.data.articles.filter(
-              (article) => article.mentorEmail === mentor.email
+              (article) => article.mentorEmail === user.email
             )
           : res.data.articles;
 
         setArticles(filteredArticles);
         console.log(filteredArticles);
       } catch (error) {
-        console.error("Error fetching articles:",  error.response.data.message);
+        console.error("Error fetching articles:", error.response.data.message);
       }
     };
 
     fetchData();
-  }, [isMyArticles, mentor.email]);
+  }, [isMyArticles, user.email]);
 
   return (
     <div

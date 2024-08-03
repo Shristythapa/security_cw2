@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
-
+import axios from "axios";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,7 +76,7 @@ const Login = () => {
             });
         } else if (role === "mentor") {
           loginMentorApi(data)
-            .then((res) => {
+            .then(async (res) => {
               console.log(res.data);
               if (res.data.success === false) {
                 if (res.status === 429) {
@@ -94,7 +94,32 @@ const Login = () => {
                 // const jsonDecode = JSON.stringify(res.data.mentor);
                 // localStorage.setItem("user", jsonDecode);
                 // localStorage.setItem("role", true);
-                navigate("/");
+                try {
+                  const response = await axios.post(
+                    "https://localhost:5000/api/validate",
+                    {},
+                    { withCredentials: true }
+                  );
+
+                  if (response.data.valid) {
+                    console.log(response.data.user);
+                    const user = response.data.user;
+                    const isMentor = response.data.user.isMentor;
+                    if (isMentor) {
+                      navigate("/mentor/mentorSessionDashboard", {
+                        state: { user },
+                      });
+                    } else {
+                      navigate("/mentee/menteeSessionDashboard", {
+                        state: { user },
+                      });
+                    }
+                  } else {
+                    console.error("Failed to validate token");
+                  }
+                } catch (error) {
+                  console.error("Failed to validate token:", error);
+                }
               }
             })
             .catch((err) => {

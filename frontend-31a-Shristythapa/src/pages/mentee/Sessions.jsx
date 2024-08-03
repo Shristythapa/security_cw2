@@ -88,9 +88,7 @@ const Sessions = () => {
     }
   };
 
-  const handleStart = (data) => {
-    navigate(`/mentee_video_call/${data._id}`, { state: data._id });
-  };
+
 
   const registerToSession = async (id, data) => {
     console.log("session id: ", id);

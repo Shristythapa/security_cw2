@@ -135,7 +135,7 @@ const MentorSessions = () => {
 
   const handleStart = (data) => {
     startCall(data._id);
-    navigate(`/mentor_video_call/${data._id}`, { state: data._id });
+    navigate(`/mentor/mentor_video_call/${data._id}`, { state: data._id });
   };
   const getStatus = (sessionDate) => {
     const currentDate = new Date();

@@ -20,17 +20,19 @@ const options = {
 // Create an Express application
 const app = express();
 
+// const csrfProtection = csrf({ cookie: true });
+// app.use(csrfProtection());
 
-app.use(helmet());
+// app.use(helmet());
 
 
 app.use(
   session({
-    secret: process.env.JWT_TOKEN_SECRET,
+    secret: "SECRET_KEY_KEY_KEY.99999999",
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.DB_URL,
+      mongoUrl: "mongodb://127.0.0.1:27017/mentorship",
       collectionName: "userSessions",
     }),
     cookie: {
@@ -41,9 +43,7 @@ app.use(
     },
   })
 );
-
-
-//  CORS policy
+// CORS policy
 const corsPolicy = {
   origin: "https://localhost:3000",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],

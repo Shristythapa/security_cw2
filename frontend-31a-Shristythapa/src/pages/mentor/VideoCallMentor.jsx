@@ -19,7 +19,7 @@ const VideoCallMentor = () => {
   const myVideo = document.createElement("video");
 
   const videoGrid = useRef();
- const user = useUser();
+  const user = useUser();
 
   useEffect(() => {
     let socket;
@@ -31,7 +31,7 @@ const VideoCallMentor = () => {
         transports: ["websocket"],
       });
     } catch (error) {
-      console.error("Error connecting to socket.io server:", error);
+      // console.error("Error connecting to socket.io server:", error);
       toast.error("Unable to connect to the server. Please try again later.");
       return;
     }
@@ -40,7 +40,7 @@ const VideoCallMentor = () => {
       if (error.message === "xhr poll error") {
         return;
       }
-      console.error("Connection error:", error);
+      // console.error("Connection error:", error);
       toast.error(
         "Connection error. Please check your network or server status."
       );
@@ -87,12 +87,14 @@ const VideoCallMentor = () => {
     });
     //peer and socket connections
     peer.on("open", (id) => {
-      console.log("my id is" + id);
+      // console.log("my id is" + id);
       socket.emit("join-room", state, id, user._id);
     });
 
-    if (user._id === state.mentorId) {
-      startCall(state._id);
+    if (user._id === state) {
+      // console.log("passed state", state);
+      // console.log("starting session", user);
+      startCall(state);
     }
 
     navigator.mediaDevices
