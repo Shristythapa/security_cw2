@@ -59,3 +59,7 @@ export const endCall = (id) => Api.put(`/session/endCall/${id}`);
 export const verifyRecaptcha = (data) => Api.post("/captcha/postCaptcha", data);
 export const validatCookie = () => Api.post("/api/validate-token");
 export const logout = () => Api.post("/logout");
+
+//logs routess
+
+export const getAllMenteeLogs = () => Api.get("/menteeLogs/getAllMenteeLogs");

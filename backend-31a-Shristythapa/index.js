@@ -135,6 +135,7 @@ app.use("/api/session", require("./routes/sessionRoutes"));
 app.use("/api/article", require("./routes/articleRoutes"));
 app.use("/api/captcha", require("./routes/captchaRoutes"));
 app.use("/api", require("./routes/userSessionsRoutes"));
+app.use("/api/menteeLogs",require("./routes/menteeLogsRoute"))
 
 // Start the server
 const PORT = process.env.PORT || 5000;

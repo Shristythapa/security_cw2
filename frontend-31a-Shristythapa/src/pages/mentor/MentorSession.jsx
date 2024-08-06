@@ -46,7 +46,7 @@ const MentorSessions = () => {
   const handleCreateSession = async (e) => {
     e.preventDefault();
 
-    const formateDate = new Date(selectedDate);
+    const formateDate = new Date(sanitizeInput(selectedDate));
 
     const res = await findMentorByEmail(user.email);
     if (res.data.success == false) {
@@ -67,11 +67,10 @@ const MentorSessions = () => {
       return toast.error("Enter all feilds");
     }
 
-    title = sanitizeInput(title);
-    description = sanitizeInput(description);
-    selectedDate = sanitizeInput(selectedDate);
-    startTime = sanitizeInput(startTime);
-    endTime = sanitizeInput(endTime);
+    // const sanitizedTitle = sanitizeInput(title);
+    const sanitizedDescription = sanitizeInput(description);
+    const sanitizedStartTime = sanitizeInput(startTime);
+    const sanitizedEndTime = sanitizeInput(endTime);
 
     const data = {
       mentorId: foundMentor._id,
@@ -80,10 +79,10 @@ const MentorSessions = () => {
         email: foundMentor.email,
       },
       title: title,
-      description: description,
+      description: sanitizedDescription,
       date: formateDate.toISOString().split("T")[0],
-      startTime: startTime,
-      endTime: endTime,
+      startTime: sanitizedStartTime,
+      endTime: sanitizedEndTime,
     };
 
     createSessionApi(data)

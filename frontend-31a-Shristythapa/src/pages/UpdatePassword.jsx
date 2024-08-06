@@ -28,7 +28,7 @@ function UpdatePassword() {
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
     setCriteria({
-      length: password.length >= minLength && password.label < maxLength,
+      length: password.length >= minLength && password.length < maxLength,
       upperCase: hasUpperCase,
       lowerCase: hasLowerCase,
       number: hasNumber,
@@ -52,43 +52,41 @@ function UpdatePassword() {
   };
   axios.defaults.withCredentials = true;
   const handleSubmit = (e) => {
-    password = sanitizeInput(password);
     e.preventDefault();
+
     if (role == "mentor") {
-      // console.log("forgot passsword menbtor");
       try {
-        // console.log("update mentor password");
-        updateMentorPassword(id, token, { password: password })
+        updateMentorPassword(id, token, { password: sanitizeInput(password) })
           .then((res) => {
-            // console.log("updated");
-            // console.log(res);
+            console.log("updated");
+            console.log(res);
             if (res.data.success === true) {
               toast.success("Password Reset succesfull");
               navigate("/login");
             } else {
               toast.error(res.data.message);
-              // navigate("/login");
+              navigate("/login");
             }
           })
           .catch((err) => {
-            //  console.log(err);
+            console.log(err);
           });
       } catch (e) {
         toast.error(e.message);
       }
     } else if (role == "mentee") {
       try {
-        // console.log("update mentee password");
-        updateMenteePassword(id, token, { password: password })
+        console.log("update mentee password");
+        updateMenteePassword(id, token, { password: sanitizeInput(password) })
           .then((res) => {
-            // console.log("updated");
-            // console.log(res);
+            console.log("updated");
+            console.log(res);
             if (res.data.success === true) {
               toast.success("Password Reset succesfull");
               navigate("/login");
             } else {
               toast.error(res.data.message);
-              // navigate("/login");
+              navigate("/login");
             }
           })
           .catch((err) => {

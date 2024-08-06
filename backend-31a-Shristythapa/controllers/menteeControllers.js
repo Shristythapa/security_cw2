@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const MenteePaswords = require("../model/passwordMentee");
 const Mentee = require("../model/mentee");
-
+const MenteeLog = require("../model/menteeLogModel");
 const validatePassword = (password) => {
   const minLength = 8;
   const maxLength = 12;
@@ -133,6 +133,16 @@ const loginMentee = async (req, res) => {
     const isMatch = await bycrypt.compare(password, mentee.password);
 
     if (!isMatch) {
+      // Log failed attempt
+      await MenteeLog.updateOne(
+        { menteeId: mentee._id },
+        {
+          $push: {
+            logins: { time: new Date(), failedAttempts: 1 },
+          },
+        },
+        { upsert: true }
+      );
       return res.json({
         success: false,
         message: "Password doesn't match",
@@ -146,7 +156,18 @@ const loginMentee = async (req, res) => {
       profileUrl: mentee.profileUrl,
       isMentor: false,
     };
-    
+
+    // Log successful login
+    await MenteeLog.updateOne(
+      { menteeId: mentee._id },
+      {
+        $push: {
+          logins: { time: new Date() },
+        },
+      },
+      { upsert: true }
+    );
+
     return res.status(200).json({
       success: true,
       message: "User logged in successfully",
@@ -195,10 +216,33 @@ const changePassword = async (req, res) => {
       text: `https://localhost:3000/resetMentorPassword/${user._id}/${token}`,
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
+    transporter.sendMail(mailOptions, async function (error, info) {
       if (error) {
-        return res.json({ success: true, message: "Mail Send Unsucessful" });
+        return res.json({ success: false, message: "Mail Send Unsucessful" });
       } else {
+        // Log the requestTime in MenteeLog
+        const menteeLog = await MenteeLog.findOne({ menteeId: user._id });
+        const requestTime = new Date();
+
+        if (menteeLog) {
+          menteeLog.forgotPassword.push({
+            requestTime: requestTime,
+            changedTime: null,
+            gapTime: null,
+          });
+          await menteeLog.save();
+        } else {
+          await MenteeLog.create({
+            menteeId: user._id,
+            forgotPassword: [
+              {
+                requestTime: requestTime,
+                changedTime: null,
+                gapTime: null,
+              },
+            ],
+          });
+        }
         return res.json({ success: true, message: "Mail" });
       }
     });
@@ -250,6 +294,22 @@ const updatePassword = async (req, res) => {
       for (const record of passwordRecords) {
         record.passwords.push(hashedPassword);
         await record.save();
+      }
+      // Update the forgotPassword log with changedTime and gapTime
+      const menteeLog = await MenteeLog.findOne({ menteeId: id });
+      if (menteeLog) {
+        const changedTime = new Date();
+
+        for (let log of menteeLog.forgotPassword) {
+          if (!log.changedTime) {
+            // Assuming you only want to update the latest entry without a changedTime
+            log.changedTime = changedTime;
+            log.gapTime = changedTime - log.requestTime; // gapTime in milliseconds
+            break;
+          }
+        }
+
+        await menteeLog.save();
       }
 
       res

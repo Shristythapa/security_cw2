@@ -28,23 +28,23 @@ const MentorForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    username = sanitizeInput(location.state.username);
-    email = sanitizeInput(location.state.email);
-    password = sanitizeInput(location.state.password);
-    profileImage = sanitizeInput(location.state.profileImage);
-    firstName = sanitizeInput(firstName);
-    lastName = sanitizeInput(lastName);
-    address = sanitizeInput(address);
+    const sanitizedUsername = sanitizeInput(location.state.username);
+    const sanitizedEmail = sanitizeInput(location.state.email);
+    const sanitizedPassword = sanitizeInput(location.state.password);
+    const sanitizedProfileImage = sanitizeInput(location.state.profileImage);
+    const sanitizedFirstName = sanitizeInput(firstName);
+    const sanitizedLastName = sanitizeInput(lastName);
+    const sanitisedAddress = sanitizeInput(address);
 
     const formData = new FormData();
 
-    formData.append("name", location.state.username);
-    formData.append("email", location.state.email);
-    formData.append("password", location.state.password);
-    formData.append("profilePicture", location.state.profileImage);
-    formData.append("firstName", firstName);
-    formData.append("lastName", lastName);
-    formData.append("address", address);
+    formData.append("name", sanitizedUsername);
+    formData.append("email", sanitizedEmail);
+    formData.append("password", sanitizedPassword);
+    formData.append("profilePicture", sanitizedProfileImage);
+    formData.append("firstName", sanitizedFirstName);
+    formData.append("lastName", sanitizedLastName);
+    formData.append("address", sanitisedAddress);
     tags.forEach((tag, index) => {
       formData.append(`skills[${index}]`, sanitizeInput(tag));
     });

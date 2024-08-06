@@ -12,11 +12,11 @@ function ForgotPassword() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    email = sanitizeInput(email)
+    const sanitizedEmail  = sanitizeInput(email)
     if (role == "mentor") {
       // console.log("forgot passsword menbtor");
       try {
-        forgotPasswordMentor({ email: email }).then((res) => {
+        forgotPasswordMentor({ email: sanitizedEmail }).then((res) => {
           if (res.data.success == true) {
             setSuccessMessage(true);
           } else {
@@ -28,7 +28,7 @@ function ForgotPassword() {
       }
     } else if (role == "mentee") {
       try {
-        forgotPasswordMentee({ email: email }).then((res) => {
+        forgotPasswordMentee({ email: sanitizedEmail }).then((res) => {
           if (res.data.success == true) {
             setSuccessMessage(true);
           } else {

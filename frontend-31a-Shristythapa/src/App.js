@@ -12,20 +12,16 @@ import Sessions from "./pages/mentee/Sessions";
 import Mentors from "./pages/mentee/Mentors";
 import "react-toastify/dist/ReactToastify.css";
 import MentorSessions from "./pages/mentor/MentorSession";
-
 import MentorPPForMentee from "./pages/mentee/MentorPPForMentee";
-
 import MenteeArticles from "./pages/mentee/MenteeArticle";
-
-// Add icons to the library
 import MentorArticles from "./pages/mentor/MentorArticles";
-
 import ForgotPassword from "./pages/ChangePassword";
 import UpdatePassword from "./pages/UpdatePassword";
 import PasswordResetSuccess from "./pages/PasswordResetSuccess";
 import VideoCallMentor from "./pages/mentor/VideoCallMentor";
 import VideoCallMentee from "./pages/mentee/VideoCallMentee";
 import axios from "axios";
+import AdminDashboard from "./pages/admin/adminDashboard";
 
 library.add(faEnvelope, faLock);
 
@@ -37,6 +33,10 @@ function App() {
       <ToastContainer></ToastContainer>
 
       <Routes>
+        <Route
+          path="/admin"
+          element={<AdminDashboard></AdminDashboard>}
+        ></Route>
         {/* public routes */}
         <Route path="/" element={<Landing></Landing>}></Route>
         <Route path="/signup" element={<Signup></Signup>}></Route>
@@ -102,5 +102,3 @@ function App() {
 }
 
 export default App;
-
-

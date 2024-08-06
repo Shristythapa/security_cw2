@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const isMentor = (req, res, next) => {
+  console.log("auth guard", req.cookies.cookieHTTP);
   const token = req.cookies.cookieHTTP;
 
   if (!token) {
