@@ -4,7 +4,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import styled from "styled-components";
-
 const SuccessContainer = styled.div`
   text-align: center;
   max-width: 500px;

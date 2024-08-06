@@ -2,17 +2,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
 import io from "socket.io-client";
 import Peer from "peerjs";
-import { endCall } from "../../Api/Api";
-import { toast } from "react-toastify";
+import { endCall, startCall } from "../../Api/Api";
+
 const VideoCallMentee = () => {
   const navigate = useNavigate();
 
-  // Object Destructuring
-  const { state } = useLocation();
-  // const state = "65d822aa029c1342f0b8d584";
-  // const { state } = state || {};
 
-  //   const [user, setUser] = useState("");
+  const { state } = useLocation();
 
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
@@ -99,7 +95,6 @@ const VideoCallMentee = () => {
 
         call.on("stream", (userVideoStream) => {
           addVideoStream(video, userVideoStream, userId);
-          toast.success(userId, "user joined");
         });
 
         call.on("close", () => {
@@ -166,77 +161,19 @@ const VideoCallMentee = () => {
   };
 
   const callEnd = () => {
-    console.log("Attempting to end call...");
-
     if (myVideoStream) {
-      const videoTracks = myVideoStream.getVideoTracks();
-      const audioTracks = myVideoStream.getAudioTracks();
+      const videoTrack = myVideoStream.getVideoTracks()[0];
+      const audioTrack = myVideoStream.getAudioTracks()[0];
 
-      videoTracks.forEach((track) => track.stop());
-      audioTracks.forEach((track) => track.stop());
+      if (videoTrack) videoTrack.stop();
+      if (audioTrack) audioTrack.stop();
 
-      // Optionally, set srcObject to null to stop displaying the video
-      myVideo.srcObject = null;
-    }
-
-    // Check if myVideoStream exists
-    if (myVideoStream) {
-      console.log("myVideoStream:", myVideoStream);
-
-      const videoTracks = myVideoStream.getVideoTracks();
-      const audioTracks = myVideoStream.getAudioTracks();
-
-      // Log the retrieved tracks
-      console.log("Video tracks:", videoTracks);
-      console.log("Audio tracks:", audioTracks);
-
-      // Check if there are video tracks to stop
-      if (videoTracks.length > 0) {
-        console.log("Stopping video track...");
-        videoTracks[0].stop();
-        console.log("Video track stopped.");
-      }
-
-      // Check if there are audio tracks to stop
-      if (audioTracks.length > 0) {
-        console.log("Stopping audio track...");
-        audioTracks[0].stop();
-        console.log("Audio track stopped.");
-      }
-      // Check if there are video tracks to stop
-      if (videoTracks.length > 0) {
-        console.log("Stopping video track...");
-        videoTracks[0].stop();
-        console.log("Video track stopped.");
-      }
-
-      // Check if there are audio tracks to stop
-      if (audioTracks.length > 0) {
-        console.log("Stopping audio track...");
-        audioTracks[0].stop();
-        console.log("Audio track stopped.");
-      }
-
-      // Optional: Call the endCall function if the user is the mentor
-      if (user._id === state.mentorId) {
-        console.log("User is mentor. Ending call...");
+      if (user._id == state.mentorId) {
         endCall(state._id);
-        console.log("Call ended for mentor.");
-      } else {
-        console.log("User is not mentor. Skipping call end.");
       }
-    } else {
-      // Log an error if myVideoStream is not defined
-      console.error("myVideoStream is not defined.");
     }
 
-    // Navigate to the previous page
-    console.log("Navigating to previous page...");
     navigate(-1);
-    setTimeout(() => {
-      window.location.reload();
-    }, 200);
-    console.log("Navigation completed.");
   };
 
   return (

@@ -27,14 +27,11 @@ import VideoCallMentor from "./pages/mentor/VideoCallMentor";
 import VideoCallMentee from "./pages/mentee/VideoCallMentee";
 import axios from "axios";
 
-
 library.add(faEnvelope, faLock);
 
 axios.defaults.withCredentials = true;
 
 function App() {
-
-  
   return (
     <Router>
       <ToastContainer></ToastContainer>
@@ -70,10 +67,6 @@ function App() {
             path="mentorArticleDashboard"
             element={<MentorArticles></MentorArticles>}
           ></Route>
-          <Route
-            path="mentor_video_call/:id"
-            element={<VideoCallMentor></VideoCallMentor>}
-          ></Route>
         </Route>
 
         {/* mentee routes */}
@@ -94,11 +87,15 @@ function App() {
             path="mentorPublicProfileForMentee/:id"
             element={<MentorPPForMentee></MentorPPForMentee>}
           ></Route>
-          <Route
-            path="mentee_video_call/:id"
-            element={<VideoCallMentee />}
-          ></Route>
         </Route>
+        <Route
+          path="mentee_video_call/:id"
+          element={<VideoCallMentee></VideoCallMentee>}
+        ></Route>
+        <Route
+          path="mentor_video_call/:id"
+          element={<VideoCallMentor></VideoCallMentor>}
+        ></Route>
       </Routes>
     </Router>
   );
@@ -106,36 +103,4 @@ function App() {
 
 export default App;
 
-// import "./App.css";
 
-// import Notification from "./PushNotification"
-
-// function App() {
-
-// return (
-//   <div className="App">
-//     <ToastContainer></ToastContainer>
-//     <header className="App-header">
-//       {/* <img src={logo} className="App-logo" alt="logo" /> */}
-
-//       <p>
-//         Edit <code>src/App.js</code> and save to reload.
-//       </p>
-
-//       <a
-//         className="App-link"
-//         href="https://reactjs.org"
-//         target="_blank"
-//         rel="noopener noreferrer"
-//       >
-//         Learn React
-//       </a>
-//     </header>
-
-//     <Notification />
-//   </div>
-// );
-
-// }
-
-// export default App;

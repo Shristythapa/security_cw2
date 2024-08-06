@@ -9,8 +9,7 @@ import { UserProvider } from "../../context/UserContext";
 import { useState } from "react";
 import axios from "axios";
 const MenteeDashboard = () => {
-  const location = useLocation();
-  const { user } = location.state || {};
+  const [user, setUser] = useState();
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMentor, setIsMentor] = useState(false);
@@ -25,6 +24,7 @@ const MenteeDashboard = () => {
         );
 
         if (response.data.valid) {
+           setUser(response.data.user);
           setIsAuthenticated(true);
           setIsMentor(response.data.user.isMentor);
         }

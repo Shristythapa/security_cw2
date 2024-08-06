@@ -11,10 +11,11 @@ import { Card, Modal } from "react-bootstrap";
 import { deleteSessionApi } from "../../Api/Api";
 import { format, parseISO } from "date-fns";
 import { useUser } from "../../context/UserContext";
+import { sanitizeInput } from "../../components/sanitizeInput";
 
 const MentorSessions = () => {
   const navigate = useNavigate();
-   const user = useUser();
+  const user = useUser();
 
   // const [mentorId, setMentorId ] = useState(null);
   const [title, setTitle] = useState(
@@ -65,6 +66,12 @@ const MentorSessions = () => {
     ) {
       return toast.error("Enter all feilds");
     }
+
+    title = sanitizeInput(title);
+    description = sanitizeInput(description);
+    selectedDate = sanitizeInput(selectedDate);
+    startTime = sanitizeInput(startTime);
+    endTime = sanitizeInput(endTime);
 
     const data = {
       mentorId: foundMentor._id,
@@ -134,8 +141,9 @@ const MentorSessions = () => {
   };
 
   const handleStart = (data) => {
+    console.log("starting call in room id", data._id);
     startCall(data._id);
-    navigate(`/mentor/mentor_video_call/${data._id}`, { state: data._id });
+    navigate(`/mentor_video_call/${data._id}`, { state: data._id });
   };
   const getStatus = (sessionDate) => {
     const currentDate = new Date();

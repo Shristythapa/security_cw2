@@ -146,7 +146,7 @@ const loginMentee = async (req, res) => {
       profileUrl: mentee.profileUrl,
       isMentor: false,
     };
-
+    
     return res.status(200).json({
       success: true,
       message: "User logged in successfully",

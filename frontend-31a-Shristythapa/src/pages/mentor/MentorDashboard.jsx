@@ -5,7 +5,7 @@ import { UserProvider } from "../../context/UserContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 const MentorDashboard = () => {
-  const location = useLocation();
+
   const [user, setUser] = useState();
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -19,7 +19,6 @@ const MentorDashboard = () => {
           {},
           { withCredentials: true }
         );
-
         if (response.data.valid) {
           setUser(response.data.user);
           setIsAuthenticated(true);
@@ -31,7 +30,6 @@ const MentorDashboard = () => {
         setLoading(false);
       }
     };
-
     checkAuth();
   }, []);
 

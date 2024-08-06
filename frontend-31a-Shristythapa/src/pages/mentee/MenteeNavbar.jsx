@@ -1,11 +1,12 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
+import { logout } from "../../Api/Api";
 const MenteeNavbar = () => {
   const navigate = useNavigate();
-  const handleLogout = (e) => {
+  const handleLogout = async (e) => {
     e.preventDefault();
-    res.clearCookie("cookieHTTP");
+    await logout();
     navigate("/login");
   };
   const user = useUser();

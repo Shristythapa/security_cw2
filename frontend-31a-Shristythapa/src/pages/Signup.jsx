@@ -6,7 +6,6 @@ import { createMenteeSignupApi, createMentorSignupApi } from "../Api/Api";
 import sampleImage from "../assets/img/learning.avif";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
-// ... (your existing imports)
 import sampleProfile from "../assets/img/dummyProfileImage.jfif";
 import { red } from "@mui/material/colors";
 const Signup = () => {

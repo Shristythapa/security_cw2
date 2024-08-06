@@ -1,11 +1,6 @@
 import { React, useState, useEffect } from "react";
 import { Card, Button, Modal } from "react-bootstrap";
-import {
-  getAllSessionsApi,
-
-  joinSession,
-  startCall,
-} from "../../Api/Api";
+import { getAllSessionsApi, joinSession, startCall } from "../../Api/Api";
 import "../../assets/css/start.css";
 import { toast } from "react-toastify";
 import { format, parseISO } from "date-fns";
@@ -55,7 +50,10 @@ const Sessions = () => {
               console.log("Camera turned off.");
             })
             .catch((error) => {
-              console.error("Error turning off camera:",  error.response.data.message);
+              console.error(
+                "Error turning off camera:",
+                error.response.data.message
+              );
             });
         } else {
           console.log("Camera is already off.");
@@ -87,8 +85,6 @@ const Sessions = () => {
       return "Error";
     }
   };
-
-
 
   const registerToSession = async (id, data) => {
     console.log("session id: ", id);
@@ -146,7 +142,6 @@ const Sessions = () => {
         <p>Mentor: {session.mentor.name}</p>
 
         <p>Description: {session.description}</p>
-     
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleCloseModal}>

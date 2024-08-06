@@ -3,15 +3,14 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createMentorSignupApi } from "../Api/Api";
 import { toast } from "react-toastify";
+import { sanitizeInput } from "../components/sanitizeInput";
 const MentorForm = () => {
   const [tags, setTags] = useState([]);
-  const [role, setRole] = useState("mentor");
   const [firstName, setFirstName] = useState("Brock");
   const [lastName, setLastName] = useState("Burnett");
   const [dob, setDob] = useState("");
   const [address, setAddress] = useState("New york");
   const [email, setEmail] = useState("");
-  const [gender, setGender] = useState("");
 
   const [inputValue, setInputValue] = useState("");
 
@@ -28,6 +27,15 @@ const MentorForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    username = sanitizeInput(location.state.username);
+    email = sanitizeInput(location.state.email);
+    password = sanitizeInput(location.state.password);
+    profileImage = sanitizeInput(location.state.profileImage);
+    firstName = sanitizeInput(firstName);
+    lastName = sanitizeInput(lastName);
+    address = sanitizeInput(address);
+
     const formData = new FormData();
 
     formData.append("name", location.state.username);
@@ -38,7 +46,7 @@ const MentorForm = () => {
     formData.append("lastName", lastName);
     formData.append("address", address);
     tags.forEach((tag, index) => {
-      formData.append(`skills[${index}]`, tag);
+      formData.append(`skills[${index}]`, sanitizeInput(tag));
     });
 
     // making api call

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { forgotPasswordMentee, forgotPasswordMentor } from "../Api/Api";
 import { toast } from "react-toastify";
+import { sanitizeInput } from "../components/sanitizeInput";
 
 function ForgotPassword() {
   const [email, setEmail] = useState();
@@ -11,6 +12,7 @@ function ForgotPassword() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    email = sanitizeInput(email)
     if (role == "mentor") {
       // console.log("forgot passsword menbtor");
       try {

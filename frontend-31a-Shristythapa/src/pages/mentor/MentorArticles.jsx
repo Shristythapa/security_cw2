@@ -6,9 +6,9 @@ import {
   findMentorByEmail,
   getAllArticle,
 } from "../../Api/Api";
+import { sanitizeInput } from "../../components/sanitizeInput";
 import { toast } from "react-toastify";
 import FloatingActionButton from "../../components/FloatingActionButton";
-import Article from "../../components/Article";
 import ArticleMentor from "../../components/ArticleMentor";
 import { useUser } from "../../context/UserContext";
 
@@ -50,6 +50,9 @@ const MentorArticles = () => {
     ) {
       return toast.error("Enter all feilds");
     }
+    const title = sanitizeInput(title);
+    const description = sanitizeInput(description);
+
     const data = {
       mentorId: foundMentor._id,
       title: title,

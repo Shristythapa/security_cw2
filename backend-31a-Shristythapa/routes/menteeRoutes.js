@@ -9,8 +9,8 @@ router.post("/signup", menteeController.signUpMentee);
 
 router.post(
   "/login",
-  // checkPasswordExpirationMentee,
-  // loginAccountLimiter,
+  checkPasswordExpirationMentee,
+  loginAccountLimiter,
   menteeController.loginMentee
 );
 router.post("/forgotPassword", menteeController.changePassword);

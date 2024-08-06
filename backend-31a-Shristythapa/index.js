@@ -11,20 +11,19 @@ const multiparty = require("connect-multiparty");
 const session = require("express-session");
 const helmet = require("helmet");
 
-// Read SSL certificate files
-const options = {
-  key: fs.readFileSync("./certi/mycert.key"),
-  cert: fs.readFileSync("./certi/mycert.pem"),
-};
-
 // Create an Express application
 const app = express();
 
 // const csrfProtection = csrf({ cookie: true });
 // app.use(csrfProtection());
 
-// app.use(helmet());
+app.use(helmet());
 
+const mongoSanitize = require("express-mongo-sanitize");
+app.use(mongoSanitize());
+
+const xss = require("xss-clean");
+app.use(xss());
 
 app.use(
   session({
@@ -51,6 +50,13 @@ const corsPolicy = {
   optionSuccessStatus: 200,
 };
 app.use(cors(corsPolicy));
+
+
+// Read SSL certificate files
+const options = {
+  key: fs.readFileSync("./certi/mycert.key"),
+  cert: fs.readFileSync("./certi/mycert.pem"),
+};
 
 // Create an HTTPS server
 const server = https.createServer(options, app);

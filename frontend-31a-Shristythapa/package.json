@@ -17,9 +17,10 @@
     "aos": "^2.3.4",
     "axios": "^1.6.7",
     "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.2",
+    "bootstrap-icons": "^1.11.3",
     "csurf": "^1.11.0",
     "date-fns": "^3.0.6",
+    "dompurify": "^3.1.6",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "peerjs": "^1.5.2",
@@ -37,7 +38,7 @@
   },
   "scripts": {
     "start": "set HTTPS=true&&set SSL_CRT_FILE=mycert.pem&&set SSL_KEY_FILE=mycert.key&&react-scripts start",
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\"",
     "eject": "react-scripts eject"
   },

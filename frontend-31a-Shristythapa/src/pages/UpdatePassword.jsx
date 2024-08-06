@@ -1,11 +1,10 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { updateMenteePassword, updateMentorPassword } from "../Api/Api";
 import { toast } from "react-toastify";
+import { sanitizeInput } from "../components/sanitizeInput";
 function UpdatePassword() {
   const [password, setPassword] = useState();
   const { id, token } = useParams();
@@ -53,6 +52,7 @@ function UpdatePassword() {
   };
   axios.defaults.withCredentials = true;
   const handleSubmit = (e) => {
+    password = sanitizeInput(password);
     e.preventDefault();
     if (role == "mentor") {
       // console.log("forgot passsword menbtor");
@@ -70,7 +70,7 @@ function UpdatePassword() {
               // navigate("/login");
             }
           })
-          .catch((err) =>{
+          .catch((err) => {
             //  console.log(err);
           });
       } catch (e) {

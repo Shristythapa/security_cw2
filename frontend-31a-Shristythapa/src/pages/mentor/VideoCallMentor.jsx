@@ -5,7 +5,7 @@ import Peer from "peerjs";
 import { endCall, startCall } from "../../Api/Api";
 import { toast } from "react-toastify";
 import { useUser } from "../../context/UserContext";
-
+import axios from "axios";
 const VideoCallMentor = () => {
   //get session id
   const navigate = useNavigate();
@@ -19,9 +19,34 @@ const VideoCallMentor = () => {
   const myVideo = document.createElement("video");
 
   const videoGrid = useRef();
-  const user = useUser();
+  const [user, setUser] = useState();
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isMentor, setIsMentor] = useState(false);
 
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.post(
+          "https://localhost:5000/api/validate",
+          {},
+          { withCredentials: true }
+        );
+
+        if (response.data.valid) {
+          console.log(response.data.user);
+          setUser(response.data.user);
+          setIsAuthenticated(true);
+          setIsMentor(response.data.user.isMentor);
+        }
+      } catch (error) {
+        console.error("Failed to validate token:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
     let socket;
     try {
       socket = io("https://localhost:5000", {
@@ -87,11 +112,11 @@ const VideoCallMentor = () => {
     });
     //peer and socket connections
     peer.on("open", (id) => {
-      // console.log("my id is" + id);
-      socket.emit("join-room", state, id, user._id);
+      console.log("my id is" + id);
+      socket.emit("join-room", state, id, user.id);
     });
 
-    if (user._id === state) {
+    if (user.id === state) {
       // console.log("passed state", state);
       // console.log("starting session", user);
       startCall(state);
@@ -101,7 +126,7 @@ const VideoCallMentor = () => {
       .getUserMedia({ audio: true, video: true })
       .then((stream) => {
         setMyVideoStream(stream);
-        addVideoStream(myVideo, stream, user._id);
+        addVideoStream(myVideo, stream, user.id);
         console.log("streaming");
 
         setupPeerCallHandling(peer, stream);
@@ -190,14 +215,13 @@ const VideoCallMentor = () => {
         if (audioTrack) audioTrack.stop();
       }
     };
-  }, []);
+  }, [user, state]);
 
-  //add new video streem to ui
   const addVideoStream = (video, stream, peerId) => {
     video.srcObject = stream;
     video.addEventListener("loadedmetadata", () => {
       video.play();
-      video.setAttribute("data-peer-id", peerId); // Set data attribute for peerId
+      video.setAttribute("data-peer-id", peerId); 
       videoGrid.current.append(video);
     });
   };
@@ -235,7 +259,7 @@ const VideoCallMentor = () => {
         .then(() => {
           console.log("Camera and microphone turned off successfully.");
           // Optional: Call the endCall function if the user is the mentor
-          if (user._id === state.mentorId) {
+          if (user.id === state.mentorId) {
             console.log("User is mentor. Ending call...");
             endCall(state);
             console.log("Call ended for mentor.");
