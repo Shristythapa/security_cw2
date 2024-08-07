@@ -5,7 +5,7 @@ const menteeLogSchema = new Schema({
   menteeId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: "Mentee",
+    ref: "mentees",
   },
   logins: [
     {

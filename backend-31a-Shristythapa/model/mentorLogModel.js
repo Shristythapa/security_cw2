@@ -5,7 +5,7 @@ const mentorLogSchema = new Schema({
   mentorId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: "Mentor",
+    ref: "mentor",
   },
   logins: [
     {

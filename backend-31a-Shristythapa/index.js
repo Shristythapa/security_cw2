@@ -51,7 +51,6 @@ const corsPolicy = {
 };
 app.use(cors(corsPolicy));
 
-
 // Read SSL certificate files
 const options = {
   key: fs.readFileSync("./certi/mycert.key"),
@@ -135,8 +134,8 @@ app.use("/api/session", require("./routes/sessionRoutes"));
 app.use("/api/article", require("./routes/articleRoutes"));
 app.use("/api/captcha", require("./routes/captchaRoutes"));
 app.use("/api", require("./routes/userSessionsRoutes"));
-app.use("/api/menteeLogs",require("./routes/menteeLogsRoute"))
-
+app.use("/api/menteeLogs", require("./routes/menteeLogsRoute"));
+app.use("/api/mentorLogs", require("./routes/mentorLogRoutes"));
 // Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

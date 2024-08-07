@@ -63,3 +63,4 @@ export const logout = () => Api.post("/logout");
 //logs routess
 
 export const getAllMenteeLogs = () => Api.get("/menteeLogs/getAllMenteeLogs");
+export const getAllMentorLogs = () => Api.get("/mentorLogs/getAllMentorLogs")
