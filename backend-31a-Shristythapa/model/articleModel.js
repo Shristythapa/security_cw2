@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Mentor = require("./mentor");
+const Mentor = require("./mentorModel");
 
 const article = mongoose.Schema({
   title: {

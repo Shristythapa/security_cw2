@@ -15,6 +15,26 @@ const getAllMentorLogs = async (req, res) => {
   }
 };
 
+const getMentorLogById = async (req, res) => {
+  try {
+    const  id  = req.params.id;
+    console.log(id);
+    const mentorLog = await MentorLog.findById(id).populate("mentorId");
+    
+    if (!mentorLog) {
+      return res
+    
+        .json({ success: false, message: "Mentor log not found" });
+    }
+
+    res.status(200).json({ success: true,mentorLog: mentorLog });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getAllMentorLogs,
+  getMentorLogById
 };

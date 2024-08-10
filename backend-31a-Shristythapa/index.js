@@ -11,7 +11,6 @@ const multiparty = require("connect-multiparty");
 const session = require("express-session");
 const helmet = require("helmet");
 
-// Create an Express application
 const app = express();
 
 // const csrfProtection = csrf({ cookie: true });
@@ -31,7 +30,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: "mongodb://127.0.0.1:27017/mentorship",
+      mongoUrl:
+        "mongodb+srv://mentorship:mentorship@cluster0.yk0kdsv.mongodb.net/mentorship",
       collectionName: "userSessions",
     }),
     cookie: {
@@ -121,7 +121,7 @@ app.use(multiparty());
 dotenv.config();
 
 // Connect to the database
-const connectDB = require("./database/db");
+const connectDB = require("./services/db");
 connectDB();
 
 // Use JSON parser middleware

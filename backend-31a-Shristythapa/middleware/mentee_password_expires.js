@@ -1,4 +1,4 @@
-const Mentee = require("../model/mentee");
+const Mentee = require("../model/menteeModel");
 
 const checkPasswordExpirationMentee = async (req, res, next) => {
   const { email } = req.body;

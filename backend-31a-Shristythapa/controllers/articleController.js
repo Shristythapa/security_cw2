@@ -1,4 +1,4 @@
-const Article = require("../model/article");
+const Article = require("../model/articleModel");
 
 const createArticle = async (req, res) => {
   const { mentorId, title, body, mentorName, mentorEmail, profileUrl } =

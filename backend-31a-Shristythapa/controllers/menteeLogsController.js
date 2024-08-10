@@ -15,6 +15,24 @@ const getAllMenteeLogs = async (req, res) => {
   }
 };
 
+const getMenteeLogById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log(id);
+    const menteeLog = await MenteeLog.findById(id).populate("menteeId");
+
+    if (!menteeLog) {
+      return res.json({ success: false, message: "MenteeLog log not found" });
+    }
+
+    res.status(200).json({ success: true, menteeLog: menteeLog });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getAllMenteeLogs,
+  getMenteeLogById
 };

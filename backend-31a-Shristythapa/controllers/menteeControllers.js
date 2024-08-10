@@ -1,11 +1,11 @@
-const Mentees = require("../model/mentee");
+const Mentees = require("../model/menteeModel");
 
 const bycrypt = require("bcrypt");
 const cloudainary = require("cloudinary");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const MenteePaswords = require("../model/passwordMentee");
-const Mentee = require("../model/mentee");
+const Mentee = require("../model/menteeModel");
 const MenteeLog = require("../model/menteeLogModel");
 const validatePassword = (password) => {
   const minLength = 8;

@@ -1,4 +1,4 @@
-const Mentor = require("../model/mentor");
+const Mentor = require("../model/mentorModel");
 const checkPasswordExpirationMentor = async (req, res, next) => {
   const { email } = req.body;
 

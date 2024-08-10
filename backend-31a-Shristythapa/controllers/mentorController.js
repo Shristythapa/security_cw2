@@ -1,4 +1,4 @@
-const Mentor = require("../model/mentor");
+const Mentor = require("../model/mentorModel");
 const cloudainary = require("cloudinary");
 const bycrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -166,7 +166,7 @@ const loginMentor = async (req, res) => {
 
     if (!isMatch) {
       await MentorLog.updateOne(
-        { menteeId: mentee._id },
+        { mentorId: mentor._id },
         {
           $push: {
             logins: { time: new Date(), failedAttempts: 1 },
@@ -190,7 +190,7 @@ const loginMentor = async (req, res) => {
     };
 
     await MentorLog.updateOne(
-      { menteeId: mentee._id },
+      { mentorId: mentor._id },
       {
         $push: {
           logins: { time: new Date() },

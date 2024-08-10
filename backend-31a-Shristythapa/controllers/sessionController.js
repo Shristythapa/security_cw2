@@ -1,9 +1,8 @@
-const Mentor = require("../model/mentor");
-const Session = require("../model/session");
+const Mentor = require("../model/mentorModel");
+const Session = require("../model/sessionModel");
 const { format, parseISO } = require("date-fns");
 
 const createSession = async (req, res) => {
-
   const {
     mentorId,
     mentor: { name: mentorName, email: mentorEmail },
@@ -24,7 +23,7 @@ const createSession = async (req, res) => {
     !description ||
     !date ||
     !startTime ||
-    !endTime 
+    !endTime
   ) {
     return res.json({
       success: false,
@@ -33,8 +32,6 @@ const createSession = async (req, res) => {
   }
 
   try {
-
-
     const newSession = new Session({
       mentorId: mentorId,
       mentor: { name: mentorName, email: mentorEmail },
@@ -120,7 +117,6 @@ const joinSession = async (req, res) => {
     return res.status(500).json({ success: false, error: error.message });
   }
 };
-
 
 const getSessionById = async (req, res) => {
   const id = req.params.id;

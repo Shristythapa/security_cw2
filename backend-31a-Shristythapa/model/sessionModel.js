@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const Mentor = require("./mentor");
-const Mentee = require("./mentee");
+const Mentor = require("./mentorModel");
+const Mentee = require("./menteeModel");
 
 // Define a custom Mongoose schema type for time
 const TimeType = {};

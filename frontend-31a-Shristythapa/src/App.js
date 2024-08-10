@@ -22,7 +22,9 @@ import VideoCallMentor from "./pages/mentor/VideoCallMentor";
 import VideoCallMentee from "./pages/mentee/VideoCallMentee";
 import axios from "axios";
 import AdminDashboard from "./pages/admin/adminDashboard";
-
+import UserTable from "./pages/admin/mentorLog"
+import MentorLog from "./pages/admin/mentorLog";
+import MenteeLog from "./pages/admin/menteeLog";
 library.add(faEnvelope, faLock);
 
 axios.defaults.withCredentials = true;
@@ -37,6 +39,9 @@ function App() {
           path="/admin"
           element={<AdminDashboard></AdminDashboard>}
         ></Route>
+        <Route path="/mentorLog/:id" element={<MentorLog></MentorLog>}></Route>
+        <Route path="/menteeLog/:id" element={<MenteeLog></MenteeLog>}></Route>
+        <Route path="/user" element={<UserTable></UserTable>}></Route>
         {/* public routes */}
         <Route path="/" element={<Landing></Landing>}></Route>
         <Route path="/signup" element={<Signup></Signup>}></Route>

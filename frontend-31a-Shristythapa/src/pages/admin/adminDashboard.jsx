@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../../assets/css/adminDashboard.css"; // Import the CSS file
 import { getAllMenteeLogs, getAllMentorLogs } from "../../Api/Api";
-const Card = ({ imageUrl, username }) => (
-  <div className="card mb-3 shadow-sm">
+import { useNavigate } from "react-router-dom";
+const Card = ({ imageUrl, username, onClick }) => (
+  <div className="card mb-3 shadow-sm" onClick={onClick}>
     {" "}
-    {/* Added shadow class */}
+    {/* Attach onClick here */}
     <div className="card-body d-flex align-items-center justify-content-between">
       <img src={imageUrl} alt={username} className="profile-pic" />
       <div>
@@ -16,6 +17,7 @@ const Card = ({ imageUrl, username }) => (
 );
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [menteLogs, setMenteeLogs] = useState([]);
   const [mentorLogs, setMentorLogs] = useState([]);
 
@@ -41,6 +43,18 @@ const AdminDashboard = () => {
       }
     });
   }, []);
+  const viewMentor = (data) => {
+    console.log(data);
+    navigate(`/mentorLog/${data._id}`, {
+      state: data._id,
+    });
+  };
+  const viewMentee = (data) => {
+    console.log(data);
+    navigate(`/menteeLog/${data._id}`, {
+      state: data._id,
+    });
+  };
 
   return (
     <div className="container-fluid p-4">
@@ -52,6 +66,7 @@ const AdminDashboard = () => {
               key={index}
               imageUrl={card.menteeId.profileUrl}
               username={card.menteeId.name}
+              onClick={() => viewMentee(card)}
             />
           ))}
         </div>
@@ -62,6 +77,7 @@ const AdminDashboard = () => {
               key={index}
               imageUrl={card.mentorId.profileUrl}
               username={card.mentorId.name}
+              onClick={() => viewMentor(card)}
             />
           ))}
         </div>

@@ -1,6 +1,57 @@
+.container {
+  max-width: 100%;
+  padding: 0 20px;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 1.5rem; /* Size of the "Activity Logs" title */
+}
+
 .profile-pic {
-  width: 50px; /* Set the desired width */
-  height: 50px; /* Set the desired height */
-  object-fit: cover; /* Ensure the image is properly cropped if necessary */
-  border-radius: 50%; /* Optional: make the image circular */
+  width: 70px; /* Adjusted size for a larger profile picture */
+  height: 70px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.mentor-label {
+  font-size: 0.85rem; /* Smaller text for 'Mentor' label */
+  color: gray;
+}
+
+.mentor-name {
+  font-size: 1.25rem; /* Larger text for mentor's name */
+  font-weight: bold;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+thead.thead-dark {
+  background-color: #343a40;
+  color: white;
+  font-size: 1.25rem; /* Larger text size for table headers */
+}
+
+i {
+  margin-right: 5px;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+  padding: 8px; /* Slightly increased padding for better spacing */
+}
+
+.table td {
+  font-size: 1rem; /* Regular text size for table data */
+}
+
+.text-danger {
+  color: red !important;
+}
+
+.tooltip-trigger {
+  cursor: pointer;
 }
