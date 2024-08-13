@@ -1,5 +1,7 @@
 const Mentor = require("../model/mentorModel");
-const cloudainary = require("cloudinary");
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const bycrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { add } = require("date-fns");
@@ -39,26 +41,26 @@ const signUpMentor = async (req, res) => {
     address,
     skills,
   } = req.body;
+
   const { profilePicture } = req.files;
 
-  console.log(req.body);
-
   if (
-    name == "" ||
-    email == "" ||
-    password == "" ||
+    !name ||
+    !email ||
+    !password ||
     !profilePicture ||
-    firstName == "" ||
-    lastName == "" ||
-    dateOfBirth == "" ||
-    address == "" ||
-    skills == []
+    !firstName ||
+    !lastName ||
+    !dateOfBirth ||
+    !address ||
+    !skills
   ) {
     return res.json({
       success: false,
       message: "Please enter all fields",
     });
   }
+
   const isPasswordValid = validatePassword(password);
   if (!isPasswordValid) {
     return res.json({
@@ -68,32 +70,44 @@ const signUpMentor = async (req, res) => {
     });
   }
 
-  if (!profilePicture) {
+  // Check if the mentor already exists
+  const existingMentor = await Mentor.findOne({ email: email });
+  if (existingMentor) {
     return res.json({
       success: false,
-      message: "Please upload Image",
+      message: "User already exists",
     });
   }
 
+  // Validate MIME type
+  if (!profilePicture.mimetype.startsWith("image/")) {
+    return res.status(400).json({
+      success: false,
+      message: "Not an image! Please upload an image file.",
+    });
+  }
+  // Rename file with a unique name
+  const newFileName =
+    Date.now() + "-" + path.basename(profilePicture.originalFilename);
   try {
-    const generatedSalt = await bycrypt.genSalt(10);
-    const encryptedPassword = await bycrypt.hash(password, generatedSalt);
-
-    const existingMentor = await Mentor.findOne({ email: email });
-    if (existingMentor) {
-      return res.json({
-        success: false,
-        message: "User already exists",
-      });
-    }
-
-    const uploadImage = await cloudainary.v2.uploader.upload(
+    // Upload to Cloudinary
+    const uploadedImage = await cloudinary.uploader.upload(
       profilePicture.path,
       {
         folder: "Mentor",
+        public_id: newFileName,
         crop: "scale",
       }
     );
+    
+    // Delete the local file after upload
+    fs.unlinkSync(profilePicture.path);
+
+    // Hash the password
+    const generatedSalt = await bycrypt.genSalt(10);
+    const encryptedPassword = await bycrypt.hash(password, generatedSalt);
+
+    // Create new mentor
     const newMentor = new Mentor({
       name: name,
       email: email,
@@ -105,18 +119,16 @@ const signUpMentor = async (req, res) => {
         address: address,
         skills: skills,
       },
-
-      profileUrl: uploadImage.secure_url,
+      profileUrl: uploadedImage.secure_url,
       passwordLastUpdated: Date.now(),
     });
 
     await newMentor.save();
 
-    console.log(newMentor._id);
+    // Save password history
     let passwordEntry = await MentorPasswords.findOne({
       userId: newMentor._id,
     });
-
     if (passwordEntry) {
       passwordEntry.passwords.push(encryptedPassword);
     } else {
@@ -180,7 +192,6 @@ const loginMentor = async (req, res) => {
       });
     }
 
-    // Set session data
     req.session.user = {
       id: mentor._id,
       name: mentor.name,

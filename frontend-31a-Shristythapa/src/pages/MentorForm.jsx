@@ -10,12 +10,9 @@ const MentorForm = () => {
   const [lastName, setLastName] = useState("Burnett");
   const [dob, setDob] = useState("");
   const [address, setAddress] = useState("New york");
-  const [email, setEmail] = useState("");
-
   const [inputValue, setInputValue] = useState("");
 
   const location = useLocation();
-
   const navigate = useNavigate();
 
   console.log(location);
@@ -31,13 +28,12 @@ const MentorForm = () => {
     const sanitizedUsername = sanitizeInput(location.state.username);
     const sanitizedEmail = sanitizeInput(location.state.email);
     const sanitizedPassword = sanitizeInput(location.state.password);
-    const sanitizedProfileImage = sanitizeInput(location.state.profileImage);
+    const sanitizedProfileImage = location.state.profileImage;
     const sanitizedFirstName = sanitizeInput(firstName);
     const sanitizedLastName = sanitizeInput(lastName);
     const sanitisedAddress = sanitizeInput(address);
 
     const formData = new FormData();
-
     formData.append("name", sanitizedUsername);
     formData.append("email", sanitizedEmail);
     formData.append("password", sanitizedPassword);
@@ -49,12 +45,9 @@ const MentorForm = () => {
       formData.append(`skills[${index}]`, sanitizeInput(tag));
     });
 
-    // making api call
     createMentorSignupApi(formData)
       .then((res) => {
         if (res.data.success === false) {
-          // console.log(res.data.message)
-
           toast.error(res.data.message);
         } else {
           toast.success(res.data.message);
@@ -63,11 +56,9 @@ const MentorForm = () => {
       })
       .catch((err) => {
         toast.error(err.response.data.message);
-        // console.log(err.message);
       });
   };
 
-  // handle remove
   const handleRemoveTag = (index) => {
     const newTags = [...tags];
     newTags.splice(index, 1);
@@ -78,15 +69,10 @@ const MentorForm = () => {
       <section>
         <div className="container">
           <div
-            className="col-lg-12 col-xl-11 card text-black
-            "
+            className="col-lg-12 col-xl-11 card text-black"
             style={{ borderRadius: "25px" }}
           >
-            <div
-              className="card text-black shadow"
-              // data-aos="fade-up"
-              //
-            >
+            <div className="card text-black shadow">
               <div className=" card-body p-md-5">
                 <div className="row align-items-center justify-content-start">
                   <div className="col-5 text-start h2 fw-bold mb-5 mx-1 mx-md-4 mt-4">
@@ -133,7 +119,6 @@ const MentorForm = () => {
                     style={{ height: "40px" }}
                   />
                 </div>
-
                 <div className="d-flex flex-row align-items-center mb-4">
                   <div className="container d-flex ">
                     <div className="col-md-11 col-lg-6 col-xl-7  d-flex align-items-center ">
@@ -145,7 +130,6 @@ const MentorForm = () => {
                         onChange={(e) => setInputValue(e.target.value)}
                       />
                     </div>
-
                     <button
                       type="submit"
                       style={{
@@ -166,8 +150,8 @@ const MentorForm = () => {
                         marginBottom: "8px",
                         padding: "4px 8px",
                         borderRadius: "4px",
-                        backgroundColor: "#000000", // Primary color
-                        color: "#fff", // Text color
+                        backgroundColor: "#000000",
+                        color: "#fff",
                       }}
                     >
                       {tag}{" "}
@@ -175,8 +159,8 @@ const MentorForm = () => {
                         className="button"
                         onClick={handleRemoveTag.bind(null, index)}
                         style={{
-                          backgroundColor: "#fff", // Button background color - use your preferred color
-                          color: "#000", // Button text color
+                          backgroundColor: "#fff",
+                          color: "#000",
                           border: "none",
                           padding: "4px 8px",
                           marginLeft: "4px",

@@ -14,7 +14,7 @@ const Signup = () => {
   const [email, setEmail] = useState("brunett@gmail.com");
   const [password, setPassword] = useState("");
   const [isPasswordValid, setIsPasswordValid] = useState(false);
-
+  const [error, setError] = useState("");
   const [criteria, setCriteria] = useState({
     length: false,
     upperCase: false,
@@ -60,18 +60,30 @@ const Signup = () => {
   const [previewImage, setPreviewImage] = useState(null);
 
   //function for image upload and preview
+  // const handleImageUpload = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file && file instanceof File) {
+  //     setProfileImage(file);
+  //     setPreviewImage(URL.createObjectURL(file));
+  //   }
+  // };
+
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && file instanceof File) {
-      setProfileImage(file);
-      setPreviewImage(URL.createObjectURL(file));
+    const uploadedFile = e.target.files[0];
+    if (uploadedFile && uploadedFile.size > 1024 * 1024 * 5) {
+      // 5 MB limit
+      setError("File size exceeds 5 MB");
+    } else if (uploadedFile && !uploadedFile.type.startsWith("image/")) {
+      setError("Invalid file type. Please upload an image.");
+    } else {
+      const file = e.target.files[0];
+      setProfileImage(uploadedFile);
+      setPreviewImage(URL.createObjectURL(uploadedFile));
     }
   };
-
   const navigate = useNavigate();
 
   const mentorForm = (username, email, password, profileImage) => {
-    // console.log("profile image", profileImage);
     navigate("/mentorForm", {
       state: {
         username: username,
@@ -110,8 +122,13 @@ const Signup = () => {
       toast.error("Password does not meet the criteria");
       return;
     }
+      if (error) {
+        toast.error("Invalid file");
+        return;
+      }
 
-    const formData = new FormData();
+    
+      const formData = new FormData();
 
     formData.append("name", name);
     formData.append("email", email);
@@ -119,12 +136,13 @@ const Signup = () => {
     formData.append("profilePicture", profileImage);
     console.log(formData);
 
-    // console.log("profile image", profileImage);
+    console.log("profile image", profileImage);
     // console.log(role);
     if (role === "mentee") {
       // console.log(formData);
       createMenteeSignupApi(formData)
         .then((res) => {
+          console.log(res);
           if (res.data.success === false) {
             toast.error(res.data.message);
           } else {
@@ -133,11 +151,15 @@ const Signup = () => {
           }
         })
         .catch((err) => {
-          toast.error(err.response.data.message);
-          // console.log(err.message);
+          // Check if error response data is available
+          const errorMessage =
+            err.response && err.response.data && err.response.data.message
+              ? err.response.data.message
+              : "An unexpected error occurred";
+
+          toast.error(errorMessage);
         });
     } else if (role === "mentor") {
-      //route to mentor form page
       if (name || email || password || profileImage) {
         return mentorForm(name, email, password, profileImage);
       }
@@ -197,6 +219,7 @@ const Signup = () => {
                             onChange={handleImageUpload}
                             style={{ display: "none" }}
                           />
+                          {error && <p style={{ color: "red" }}>*{error}</p>}
                         </div>
                         <div className="d-flex flex-row align-items-center mb-4">
                           <FontAwesomeIcon

@@ -86,7 +86,6 @@ function UpdatePassword() {
               navigate("/login");
             } else {
               toast.error(res.data.message);
-              navigate("/login");
             }
           })
           .catch((err) => {

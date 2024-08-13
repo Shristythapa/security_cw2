@@ -2,15 +2,17 @@ const MenteeLog = require("../model/menteeLogModel");
 const MentorLog = require("../model/mentorLogModel");
 
 const logout = (req, res) => {
+  const user = req.session.user;
   req.session.destroy(async (err) => {
     if (err) {
       console.log(err);
-      return res.status(500).send("Failed to logout");
+      return res.send("Failed to logout");
     }
+    console.log(req.session);
     res.clearCookie("connect.sid");
-    if (req.session.user.isMentor) {
+    if (user.isMentor) {
       await MentorLog.updateOne(
-        { menteeId: user.id },
+        { mentorId: user.id },
         {
           $push: {
             logouts: new Date(),
@@ -35,7 +37,8 @@ const logout = (req, res) => {
 
 const validateSession = (req, res) => {
   if (!req.session.user) {
-    return res.status(401).json({ valid: false });
+    console.log("no session found");
+    return res.json({ valid: false });
   }
   return res.json({
     valid: true,

@@ -4,12 +4,15 @@ const { loginAccountLimiter } = require("../middleware/ratelimit");
 const {
   checkPasswordExpirationMentor,
 } = require("../middleware/mentor_password_expires");
-
-router.post("/signup", mentorController.signUpMentor);
+  
+router.post(
+  "/signup",
+  mentorController.signUpMentor
+);
 router.post(
   "/login",
-  // checkPasswordExpirationMentor,
-  // loginAccountLimiter,
+  checkPasswordExpirationMentor,
+  loginAccountLimiter,
   mentorController.loginMentor
 );
 router.get("/getAllMentors", mentorController.getAllMentors);

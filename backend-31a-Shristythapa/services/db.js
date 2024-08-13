@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-// importing
-
+const {createDefaultAdmin} = require("../controllers/adminController");
 const connectDB = () => {
   const options = {
     // Increase the timeout duration to 30 seconds (30000 milliseconds)
@@ -15,6 +14,7 @@ const connectDB = () => {
       // "mongodb://127.0.0.1:27017/mentorship"
     )
     .then(() => {
+      // createDefaultAdmin();
       console.log("DB CONNECTED " + process.env.DB_URL);
     });
 };

@@ -139,11 +139,6 @@ const MentorSessions = () => {
     getSessions();
   };
 
-  const handleStart = (data) => {
-    console.log("starting call in room id", data._id);
-    startCall(data._id);
-    navigate(`/mentor_video_call/${data._id}`, { state: data._id });
-  };
   const getStatus = (sessionDate) => {
     const currentDate = new Date();
     const sessionDateTime = new Date(sessionDate);
@@ -170,18 +165,6 @@ const MentorSessions = () => {
         <button className="btn btn-secondary" onClick={handleCloseModal}>
           Close
         </button>
-        {new Date(session.date) > new Date() && (
-          <button
-            className="btn btn-secondary"
-            type="submit"
-            style={{ backgroundColor: "#772C91", color: "#fff" }}
-            onClick={() => {
-              handleStart(session);
-            }}
-          >
-            Start
-          </button>
-        )}
 
         <button
           className="btn btn-danger"

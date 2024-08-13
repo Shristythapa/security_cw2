@@ -1,7 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import sampleImage from "../assets/img/learning.avif";
-import { loginMenteeApi, loginMentorApi, verifyRecaptcha } from "../Api/Api";
+import {
+  adminLogin,
+  loginMenteeApi,
+  loginMentorApi,
+  verifyRecaptcha,
+} from "../Api/Api";
 import { toast } from "react-toastify";
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -40,42 +45,11 @@ const Login = () => {
     };
 
     const formData = { captcha: captchaRef };
-    // console.log(formData);
 
     verifyRecaptcha(formData).then((res) => {
       if (res.data.success) {
         if (role === "mentee") {
           loginMenteeApi(data)
-            .then((res) => {
-              console.log(res.data);
-              if (res.data.success === false) {
-                // Check for rate limit exceeded error
-                if (res.status === 429) {
-                  toast.error(
-                    "Too many login attempts. Please try again later."
-                  );
-                } else if (res.status == 401) {
-                  toast.error(res.data.message);
-                  navigate("/passwordResetSuccess");
-                } else {
-                  toast.error(res.data.message);
-                }
-              } else {
-                toast.success(res.data.message);
-
-                navigate("/");
-              }
-            })
-            .catch((err) => {
-              if (err.response && err.response.status === 429) {
-                toast.error("Too many login attempts. Please try again later.");
-              } else {
-                toast.error(err.response?.data?.message || "An error occurred");
-              }
-              // console.log(err.message);
-            });
-        } else if (role === "mentor") {
-          loginMentorApi(data)
             .then(async (res) => {
               console.log(res.data);
               if (res.data.success === false) {
@@ -83,17 +57,14 @@ const Login = () => {
                   toast.error(
                     "Too many login attempts. Please try again later."
                   );
+                } else if (res.status === 401) {
+                  toast.error(res.data.message);
+                  navigate("/passwordResetSuccess");
                 } else {
                   toast.error(res.data.message);
                 }
               } else {
                 toast.success(res.data.message);
-                console.log(res.data);
-
-                // // Set user data
-                // const jsonDecode = JSON.stringify(res.data.mentor);
-                // localStorage.setItem("user", jsonDecode);
-                // localStorage.setItem("role", true);
                 try {
                   const response = await axios.post(
                     "https://localhost:5000/api/validate",
@@ -110,9 +81,7 @@ const Login = () => {
                         state: { user },
                       });
                     } else {
-                      navigate("/mentee/menteeSessionDashboard", {
-                        state: { user },
-                      });
+                      navigate("/");
                     }
                   } else {
                     console.error("Failed to validate token");
@@ -120,6 +89,79 @@ const Login = () => {
                 } catch (error) {
                   console.error("Failed to validate token:", error);
                 }
+              }
+            })
+            .catch((err) => {
+              if (err.response && err.response.status === 429) {
+                toast.error("Too many login attempts. Please try again later.");
+              } else {
+                toast.error(err.response?.data?.message || "An error occurred");
+              }
+            });
+        } else if (role === "mentor") {
+          loginMentorApi(data)
+            .then(async (res) => {
+              console.log(res.data);
+              if (res.data.success === false) {
+                if (res.status === 429) {
+                  toast.error(
+                    "Too many login attempts. Please try again later."
+                  );
+                } else {
+                  toast.error(res.data.message);
+                }
+              } else {
+                toast.success(res.data.message);
+                try {
+                  const response = await axios.post(
+                    "https://localhost:5000/api/validate",
+                    {},
+                    { withCredentials: true }
+                  );
+
+                  if (response.data.valid) {
+                    console.log(response.data.user);
+                    const user = response.data.user;
+                    const isMentor = response.data.user.isMentor;
+                    if (isMentor) {
+                      navigate("/mentor/mentorSessionDashboard", {
+                        state: { user },
+                      });
+                    } else {
+                      navigate("/");
+                    }
+                  } else {
+                    console.error("Failed to validate token");
+                  }
+                } catch (error) {
+                  console.error("Failed to validate token:", error);
+                }
+              }
+            })
+            .catch((err) => {
+              if (err.response && err.response.status === 429) {
+                toast.error(
+                  "Too many login attempts. Please try again after 15 min pls."
+                );
+              } else {
+                toast.error(err.response?.data?.message || "An error occurred");
+              }
+            });
+        } else if (role === "admin") {
+          adminLogin(data)
+            .then(async (res) => {
+              console.log(res.data);
+              if (res.data.success === false) {
+                if (res.status === 429) {
+                  toast.error(
+                    "Too many login attempts. Please try again later."
+                  );
+                } else {
+                  toast.error(res.data.message);
+                }
+              } else {
+                toast.success(res.data.message);
+                navigate("/adminDashboard");
               }
             })
             .catch((err) => {
@@ -186,6 +228,7 @@ const Login = () => {
                             </option>
                             <option value="mentee">Mentee</option>
                             <option value="mentor">Mentor</option>
+                            <option value="admin">Admin</option>
                           </select>
                         </div>
                         <div className="d-flex flex-row align-items-center mb-3">

@@ -6,7 +6,7 @@ import "../../assets/css/dropdown.css";
 
 const Mentors = () => {
   const [mentors, setMentors] = useState([]);
-  const [selectedSkill, setSelectedSkill] = useState(""); // State for selected skill
+  const [selectedSkill, setSelectedSkill] = useState(""); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,15 +19,13 @@ const Mentors = () => {
   }, []);
 
   const viewMentor = (data) => {
-    navigate(`/mentorPublicProfileForMentee/${data._id}`, {
+    navigate(`/mentee/mentorPublicProfileForMentee/${data._id}`, {
       state: data._id,
     });
   };
-  // Function to handle removing the filter
   const handleRemoveFilter = () => {
     setSelectedSkill("");
   };
-  // Extract all skills from mentors
   const allSkills = mentors.reduce((skills, mentor) => {
     mentor.mentorProfileInformation.skills.forEach((skill) => {
       if (!skills.includes(skill)) {
@@ -37,7 +35,6 @@ const Mentors = () => {
     return skills;
   }, []);
 
-  // Filter mentors based on the selectedSkill or show all mentors if selectedSkill is empty
   const filteredMentors = selectedSkill
     ? mentors.filter((mentor) =>
         mentor.mentorProfileInformation.skills.includes(selectedSkill)

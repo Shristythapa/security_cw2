@@ -57,12 +57,15 @@ export const forgotPasswordMentee = (data) =>
 export const startCall = (id) => Api.put(`/session/startSession/${id}`);
 export const endCall = (id) => Api.put(`/session/endCall/${id}`);
 export const verifyRecaptcha = (data) => Api.post("/captcha/postCaptcha", data);
-export const validatCookie = () => Api.post("/api/validate-token");
+export const validatCookie = () => Api.post("/api/validate");
 export const logout = () => Api.post("/logout");
 
 //logs routess
 
 export const getAllMenteeLogs = () => Api.get("/menteeLogs/getAllMenteeLogs");
 export const getAllMentorLogs = () => Api.get("/mentorLogs/getAllMentorLogs");
-export const getMentorLogById = (id) => Api.get(`/mentorLogs/getMentorLogById/${id}`);
-export const getMenteeLogById = (id) => Api.get(`menteeLogs/getMenteeLogById/${id}`);
+export const getMentorLogById = (id) =>
+  Api.get(`/mentorLogs/getMentorLogById/${id}`);
+export const getMenteeLogById = (id) =>
+  Api.get(`menteeLogs/getMenteeLogById/${id}`);
+export const adminLogin = (data) => Api.post("/admin/adminLogin", data);

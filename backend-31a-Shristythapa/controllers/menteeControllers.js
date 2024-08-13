@@ -1,12 +1,13 @@
 const Mentees = require("../model/menteeModel");
-
+const cloudinary = require("cloudinary").v2;
 const bycrypt = require("bcrypt");
-const cloudainary = require("cloudinary");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const MenteePaswords = require("../model/passwordMentee");
 const Mentee = require("../model/menteeModel");
 const MenteeLog = require("../model/menteeLogModel");
+
+
 const validatePassword = (password) => {
   const minLength = 8;
   const maxLength = 12;
@@ -29,6 +30,8 @@ const validatePassword = (password) => {
 };
 
 const signUpMentee = async (req, res) => {
+  console.log(req.body);
+
   const { name, email, password } = req.body;
   const { profilePicture } = req.files;
 
@@ -51,31 +54,47 @@ const signUpMentee = async (req, res) => {
   if (!profilePicture) {
     return res.json({
       success: false,
-      message: "Please upload Image",
+      message: "Please upload an image",
     });
   }
+  if (!profilePicture.mimetype.startsWith("image/")) {
+    console.log("not image");
+    return res.json({
+      success: false,
+      message: "Not an image! Please upload an image file.",
+    });
+  }
+  const newFileName =
+    Date.now() + "-" + path.basename(profilePicture.originalFilename);
 
   try {
-    const generatedSalt = await bycrypt.genSalt(10);
-    const encryptedPassword = await bycrypt.hash(password, generatedSalt);
+    const uploadedImage = await cloudinary.uploader.upload(
+      profilePicture.filepath,
+      {
+        folder: "Mentee",
+        public_id: newFileName,
+        crop: "scale",
+      }
+    );
 
+    // Delete the local file after upload
+    fs.unlinkSync(profilePicture.filepath);
+
+    // Check if the mentee already exists
     const existingMentee = await Mentees.findOne({ email: email });
     if (existingMentee) {
-      console.log("user already exist");
+      console.log("User already exists");
       return res.json({
         success: false,
         message: "User already exists",
       });
     }
 
-    const uploadedImage = await cloudainary.v2.uploader.upload(
-      profilePicture.path,
-      {
-        folder: "Mentee",
-        crop: "scale",
-      }
-    );
+    // Hash the password
+    const generatedSalt = await bycrypt.genSalt(10);
+    const encryptedPassword = bycrypt.hash(password, generatedSalt);
 
+    // Create new mentee
     const newMentee = new Mentees({
       name: name,
       email: email,
@@ -85,11 +104,12 @@ const signUpMentee = async (req, res) => {
     });
 
     await newMentee.save();
+    console.log("Saved");
 
+    // Save password history
     let passwordEntry = await MenteePaswords.findOne({
       userId: newMentee._id,
     });
-
     passwordEntry = new MenteePaswords({
       userId: newMentee._id,
       passwords: [encryptedPassword],
@@ -99,16 +119,17 @@ const signUpMentee = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "User created sucessfully.",
+      message: "User created successfully.",
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      sucess: false,
+    return res.json({
+      success: false,
       message: "Server error",
     });
   }
 };
+
 const loginMentee = async (req, res) => {
   const { email, password } = req.body;
 
@@ -156,6 +177,8 @@ const loginMentee = async (req, res) => {
       profileUrl: mentee.profileUrl,
       isMentor: false,
     };
+
+    console.log("user registered");
 
     // Log successful login
     await MenteeLog.updateOne(

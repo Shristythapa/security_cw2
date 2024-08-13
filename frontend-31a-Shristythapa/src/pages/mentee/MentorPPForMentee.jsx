@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import sampleProfile from "../../assets/img/dummyProfileImage.jfif";
 import { toast } from "react-toastify";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   getMentorById,
   getSessionsOfMentor,
@@ -13,10 +13,10 @@ import { format, parseISO } from "date-fns";
 const MentorPPForMentee = () => {
   const mentee = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
-  const location = useLocation();
-  // const  mentor = location.state;
-  const id = location.state;
-  // const id = "65b4d70cad2f674bf8df5446";
+  // const location = useLocation();
+  // const id = location.state;
+  // console.log(id);
+  const { id } = useParams();
   console.log(id);
   const [mentor, setMentor] = useState(null);
   const [sessions, setSessions] = useState([]);
@@ -34,7 +34,6 @@ const MentorPPForMentee = () => {
   const getStatus = (sessionDate) => {
     const currentDate = new Date();
     const sessionDateTime = new Date(sessionDate);
-
     return sessionDateTime > currentDate ? "Upcoming" : "Completed";
   };
   const registerToSession = async (id) => {
@@ -83,11 +82,8 @@ const MentorPPForMentee = () => {
       date: session.date,
       startTime: session.startTime,
       endTime: session.endTime,
-      attendeesSinged: 
-        { email: mentee.email },
-        ...(session.attendesSigned || []), // Use an empty array if session.attendesSigned is undefined
-      
-  
+      attendeesSinged: { email: mentee.email },
+      ...(session.attendesSigned || []),
     };
     joinSession(id, sessionData)
       .then((res) => {
@@ -99,13 +95,11 @@ const MentorPPForMentee = () => {
           toast.error(res.data.message);
           return;
         } else {
-          // Handle other cases if needed
           toast.error("Unexpected response format");
           return;
         }
       })
       .catch((error) => {
-        // Handle the case when the promise is rejected
         console.error("Error joining session:", error.message);
         toast.error("Error joining session. Please try again.");
         return;
@@ -273,12 +267,9 @@ const MentorPPForMentee = () => {
                         {session.description}
                       </Card.Subtitle>
 
-                      <div className="d-flex align-items-center">
-              
-                      </div>
+                      <div className="d-flex align-items-center"></div>
 
                       <button
-                    
                         className="mt-3 btn"
                         onClick={() => handleShowModal(session._id)}
                         style={{ backgroundColor: "#772C91", color: "#fff" }}

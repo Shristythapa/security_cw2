@@ -18,15 +18,12 @@ import MentorArticles from "./pages/mentor/MentorArticles";
 import ForgotPassword from "./pages/ChangePassword";
 import UpdatePassword from "./pages/UpdatePassword";
 import PasswordResetSuccess from "./pages/PasswordResetSuccess";
-import VideoCallMentor from "./pages/mentor/VideoCallMentor";
-import VideoCallMentee from "./pages/mentee/VideoCallMentee";
 import axios from "axios";
-import AdminDashboard from "./pages/admin/adminDashboard";
-import UserTable from "./pages/admin/mentorLog"
 import MentorLog from "./pages/admin/mentorLog";
 import MenteeLog from "./pages/admin/menteeLog";
-library.add(faEnvelope, faLock);
+import Admin from "./pages/admin/admin";
 
+library.add(faEnvelope, faLock);
 axios.defaults.withCredentials = true;
 
 function App() {
@@ -35,13 +32,12 @@ function App() {
       <ToastContainer></ToastContainer>
 
       <Routes>
-        <Route
-          path="/admin"
-          element={<AdminDashboard></AdminDashboard>}
-        ></Route>
-        <Route path="/mentorLog/:id" element={<MentorLog></MentorLog>}></Route>
-        <Route path="/menteeLog/:id" element={<MenteeLog></MenteeLog>}></Route>
-        <Route path="/user" element={<UserTable></UserTable>}></Route>
+
+        {/* admin routes */}
+        <Route path="/adminDashboard" element={<Admin />} />
+        <Route path="/mentorLog/:id" element={<MentorLog />} />
+        <Route path="/menteeLog/:id" element={<MenteeLog />} />
+
         {/* public routes */}
         <Route path="/" element={<Landing></Landing>}></Route>
         <Route path="/signup" element={<Signup></Signup>}></Route>
@@ -93,14 +89,7 @@ function App() {
             element={<MentorPPForMentee></MentorPPForMentee>}
           ></Route>
         </Route>
-        <Route
-          path="mentee_video_call/:id"
-          element={<VideoCallMentee></VideoCallMentee>}
-        ></Route>
-        <Route
-          path="mentor_video_call/:id"
-          element={<VideoCallMentor></VideoCallMentor>}
-        ></Route>
+       
       </Routes>
     </Router>
   );

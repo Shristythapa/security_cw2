@@ -1,10 +1,6 @@
 import { Outlet, Navigate } from "react-router-dom";
 import MenteeNavbar from "./MenteeNavbar";
-import io from "socket.io-client"; // Import socket.io-client
-import { getSessionById } from "../../Api/Api";
 import { React, useEffect } from "react";
-import { toast } from "react-toastify";
-import { useLocation } from "react-router-dom";
 import { UserProvider } from "../../context/UserContext";
 import { useState } from "react";
 import axios from "axios";
@@ -37,26 +33,6 @@ const MenteeDashboard = () => {
 
     checkAuth();
 
-    const socket = io("https://localhost:5000");
-
-    socket.on("mentor-join", async (ROOM_ID) => {
-      const session = await getSessionById(ROOM_ID);
-      console.log(session);
-      console.log("session started");
-      window.location.reload();
-
-      setTimeout(function () {
-        toast.success("Session started");
-      }, 2000);
-    });
-
-    socket.on("user-disconnected", (userId) => {
-      toast.warn(`${userId} has left the room.`);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
   }, []);
 
   if (loading) {

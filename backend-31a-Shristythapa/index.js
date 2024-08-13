@@ -3,20 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const https = require("https");
 const fs = require("fs");
-const { Server } = require("socket.io");
-const { ExpressPeerServer } = require("peer");
+const multer = require("multer");
 const MongoStore = require("connect-mongo");
-const cloudinary = require("cloudinary");
 const multiparty = require("connect-multiparty");
 const session = require("express-session");
 const helmet = require("helmet");
+const cloudinary = require("cloudinary").v2;
 
 const app = express();
-
-// const csrfProtection = csrf({ cookie: true });
-// app.use(csrfProtection());
-
-app.use(helmet());
 
 const mongoSanitize = require("express-mongo-sanitize");
 app.use(mongoSanitize());
@@ -30,8 +24,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://mentorship:mentorship@cluster0.yk0kdsv.mongodb.net/mentorship",
+      mongoUrl: "mongodb://127.0.0.1:27017/mentorship",
       collectionName: "userSessions",
     }),
     cookie: {
@@ -42,6 +35,7 @@ app.use(
     },
   })
 );
+
 // CORS policy
 const corsPolicy = {
   origin: "https://localhost:3000",
@@ -60,52 +54,8 @@ const options = {
 // Create an HTTPS server
 const server = https.createServer(options, app);
 
-// Create a new Socket.IO server instance
-const io = new Server(server, {
-  corsPolicy,
-});
-
-// Set up PeerJS server
-const opinions = { debug: true };
-app.use("/peerjs", ExpressPeerServer(server, opinions));
-
 // Serve static files
 app.use(express.static("public"));
-
-// Define the room-users map
-const roomUsersMap = {};
-
-// Handle Socket.IO connections
-io.on("connection", (socket) => {
-  console.log("SOCKET INIT");
-
-  socket.on("join-room", (roomId, userId) => {
-    if (!roomUsersMap[roomId]) {
-      roomUsersMap[roomId] = [userId];
-    } else {
-      if (roomUsersMap[roomId].includes(userId)) {
-        return;
-      }
-    }
-
-    roomUsersMap[roomId].push(userId);
-    socket.join(roomId);
-    console.log(userId, "joined room");
-    setTimeout(() => {
-      socket.broadcast.to(roomId).emit("user-connected", userId);
-    }, 1000);
-  });
-
-  socket.on("mentor-joined", (ROOM_ID) => {
-    console.log(ROOM_ID, "MENTOR JOINED NOTIFICATION");
-    io.emit("mentor-join", ROOM_ID);
-  });
-
-  socket.on("disconnect", (roomId, userId) => {
-    console.log(userId, "disconnected");
-    io.to(roomId).emit("user-disconnected", userId);
-  });
-});
 
 // Configure Cloudinary
 cloudinary.config({
@@ -126,8 +76,10 @@ connectDB();
 
 // Use JSON parser middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
+app.disable("x-powered-by");
 
-// Set up API routes
 app.use("/api/mentee", require("./routes/menteeRoutes"));
 app.use("/api/mentor", require("./routes/mentorRoutes"));
 app.use("/api/session", require("./routes/sessionRoutes"));
@@ -136,9 +88,11 @@ app.use("/api/captcha", require("./routes/captchaRoutes"));
 app.use("/api", require("./routes/userSessionsRoutes"));
 app.use("/api/menteeLogs", require("./routes/menteeLogsRoute"));
 app.use("/api/mentorLogs", require("./routes/mentorLogRoutes"));
-// Start the server
+app.use("/api/admin", require("./routes/adminRoutes"));
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
 module.exports = app;

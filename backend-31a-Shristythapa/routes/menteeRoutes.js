@@ -1,11 +1,15 @@
 const router = require("express").Router();
+const cors = require("cors");
 const menteeController = require("../controllers/menteeControllers");
 const { loginAccountLimiter } = require("../middleware/ratelimit");
 const {
   checkPasswordExpirationMentee,
 } = require("../middleware/mentee_password_expires");
 
-router.post("/signup", menteeController.signUpMentee);
+router.post(
+  "/signup",
+  menteeController.signUpMentee
+);
 
 router.post(
   "/login",

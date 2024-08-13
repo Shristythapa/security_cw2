@@ -35,7 +35,6 @@ const Sessions = () => {
 
   // Function to turn off the camera
   function turnOffCamera() {
-    // Get the video tracks of the current media stream
     navigator.mediaDevices
       .getUserMedia({ video: true })
       .then((stream) => {
@@ -63,11 +62,6 @@ const Sessions = () => {
         console.error("Error accessing camera:", error.response.data.message);
       });
   }
-
-  const handleJoinCall = (data) => {
-    startCall(data._id);
-    navigate(`/mentee_video_call/${data._id}`, { state: data });
-  };
 
   const getStatus = (sessionDate) => {
     const currentDate = new Date();
@@ -110,20 +104,11 @@ const Sessions = () => {
         }
       })
       .catch((error) => {
-        // Handle the case when the promise is rejected
         console.error("Error joining session:", error.message);
         toast.error("Error joining session. Please try again.");
         return;
       });
   };
-
-  // const isMentorAlreadyJoined = (session) =>
-  //   session.attendesSigned.some((attendee) => {
-  //     console.log("Attendee email:", attendee.email);
-  //     console.log("Attendee email:", session.mentor.email);
-  //     console.log(attendee.email === session.mentor.email);
-  //     return attendee.email === mentee.email;
-  //   });
 
   const SessionModal = ({ session }) => (
     <Modal
@@ -147,24 +132,6 @@ const Sessions = () => {
         <Button variant="secondary" onClick={handleCloseModal}>
           Close
         </Button>
-        {/* {isMentorAlreadyJoined(session) ? (
-          <div></div>
-        ) : (
-          <button
-            className="btn"
-            onClick={() => {
-              var user = JSON.parse(localStorage.getItem("user"));
-              const data = {
-                menteeEmail: user.email,
-                menteeId: user._id,
-              };
-              registerToSession(session._id, data);
-            }}
-            style={{ backgroundColor: "#EEA025", color: "#fff" }}
-          >
-            Join Session
-          </button>
-        )} */}
       </Modal.Footer>
     </Modal>
   );
@@ -211,19 +178,6 @@ const Sessions = () => {
                 <Card.Subtitle className="mb-2 text-muted text-truncate">
                   {session.description}
                 </Card.Subtitle>
-
-                <div className="d-flex align-items-center">
-                  {/* <Card.Subtitle className="col">
-                          {session.mentorId}
-                        </Card.Subtitle> */}
-                  {/* <img
-                    src={session.mentor.imageUrl}
-                    alt={session.mentor.name}
-                    width="30"
-                    height="30"
-                    className="rounded-circle ml-2 align-self-end"
-                  /> */}
-                </div>
                 <div
                   style={{
                     display: "flex",
@@ -231,11 +185,6 @@ const Sessions = () => {
                     alignItems: "center",
                   }}
                 >
-                  {/* {isMentorAlreadyJoined(session) && (
-                    <span className="text-success font-weight-bold font-italic ml-2">
-                      Joined
-                    </span>
-                  )} */}
                   <div
                     style={{
                       display: "flex",
@@ -245,15 +194,6 @@ const Sessions = () => {
                       alignItems: "center",
                     }}
                   >
-                    {session.isOngoing && (
-                      <button
-                        className="mt-3 me-3 btn flashy-button"
-                        onClick={() => handleJoinCall(session)}
-                        style={{ backgroundColor: "#EEA025", color: "#fff" }}
-                      >
-                        Join Call
-                      </button>
-                    )}
                     <button
                       className="mt-3 btn"
                       onClick={() => handleShowModal(session._id)}
