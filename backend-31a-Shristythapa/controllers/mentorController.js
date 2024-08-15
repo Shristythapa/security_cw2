@@ -1,10 +1,7 @@
 const Mentor = require("../model/mentorModel");
-const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const bycrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { add } = require("date-fns");
 const nodemailer = require("nodemailer");
 const MentorPasswords = require("../model/passwordMentor");
 const { id } = require("date-fns/locale");
@@ -99,7 +96,7 @@ const signUpMentor = async (req, res) => {
         crop: "scale",
       }
     );
-    
+
     // Delete the local file after upload
     fs.unlinkSync(profilePicture.path);
 
@@ -325,6 +322,7 @@ const changePassword = async (req, res) => {
     if (!user) {
       return res.json({ message: "User not existed", success: false });
     }
+    console.log(user);
     const token = jwt.sign({ id: user._id }, "jwt_secret_key", {
       expiresIn: "1h",
     });
@@ -347,7 +345,7 @@ const changePassword = async (req, res) => {
         return res.json({ success: false, message: "Mail Send Unsucessful" });
       } else {
         // Log the requestTime in mentorLog
-        const mentorLog = await MentorLog.findOne({ menteeId: user._id });
+        const mentorLog = await MentorLog.findOne({ mentor: user._id });
         const requestTime = new Date();
 
         if (mentorLog) {
@@ -359,7 +357,7 @@ const changePassword = async (req, res) => {
           await mentorLog.save();
         } else {
           await MentorLog.create({
-            menteeId: user._id,
+            mentorId: user._id,
             forgotPassword: [
               {
                 requestTime: requestTime,
@@ -390,13 +388,13 @@ const updatePassword = async (req, res) => {
     // Fetch all password records for the user
     const passwordRecords = await MentorPasswords.find({ userId: id });
     if (!passwordRecords || passwordRecords.length === 0) {
-      return res.status(404).json({ message: "User not found" });
+      return res.json({ message: "User not found", success: false });
     }
 
     // Verify JWT token
     jwt.verify(token, "jwt_secret_key", async (err, decoded) => {
       if (err) {
-        return res.status(401).json({ message: "Invalid or expired token" });
+        return res.json({ message: "Invalid or expired token" , success: false});
       }
 
       // Check if the new password matches any previous passwords
@@ -404,7 +402,7 @@ const updatePassword = async (req, res) => {
         for (const oldPassword of record.passwords) {
           const match = await bycrypt.compare(password, oldPassword);
           if (match) {
-            return res.json({ message: "Can't repeat previous passwords" });
+            return res.json({ message: "Can't repeat previous passwords", success:false });
           }
         }
       }
@@ -413,7 +411,7 @@ const updatePassword = async (req, res) => {
       const hashedPassword = await bycrypt.hash(password, generatedSalt);
 
       // Update the user's password
-      await Mentee.findByIdAndUpdate(id, { password: hashedPassword });
+      await Mentor.findByIdAndUpdate(id, { password: hashedPassword });
       console.log("password updated");
 
       // Add the new hashed password to the password records
@@ -422,7 +420,7 @@ const updatePassword = async (req, res) => {
         await record.save();
       }
       // Update the forgotPassword log with changedTime and gapTime
-      const mentorLog = await MentorLog.findOne({ menteeId: id });
+      const mentorLog = await MentorLog.findOne({ mentorId: id });
       if (mentorLog) {
         const changedTime = new Date();
 

@@ -50,13 +50,13 @@ const MentorArticles = () => {
     ) {
       return toast.error("Enter all feilds");
     }
-    const title = sanitizeInput(title);
-    const description = sanitizeInput(description);
+    const sanitizedTitle = sanitizeInput(title);
+    const sanitizedDesc = sanitizeInput(description);
 
     const data = {
       mentorId: foundMentor._id,
-      title: title,
-      body: description,
+      title: sanitizedTitle,
+      body: sanitizedDesc,
       mentorName:
         foundMentor.mentorProfileInformation.firstName +
         " " +

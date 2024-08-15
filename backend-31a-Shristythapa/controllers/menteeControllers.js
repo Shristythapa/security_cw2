@@ -285,14 +285,14 @@ const updatePassword = async (req, res) => {
     // Fetch all password records for the user
     const passwordRecords = await MenteePaswords.find({ userId: id });
     if (!passwordRecords || passwordRecords.length === 0) {
-      return res.json({ error: "User not found" });
+      return res.json({ message: "User not found" , success:false});
     }
     console.log(passwordRecords);
 
     // Verify JWT token
     jwt.verify(token, "jwt_secret_key", async (err, decoded) => {
       if (err) {
-        return res.json({ message: "Invalid or expired token" });
+        return res.json({ message: "Invalid or expired token", success:false });
       }
 
       // Check if the new password matches any previous passwords
@@ -300,7 +300,7 @@ const updatePassword = async (req, res) => {
         for (const oldPassword of record.passwords) {
           const match = await bycrypt.compare(password, oldPassword);
           if (match) {
-            return res.json({ message: "Can't repeat previous passwords" });
+            return res.json({ message: "Can't repeat previous passwords",success:false });
           }
         }
       }

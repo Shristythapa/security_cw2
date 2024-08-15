@@ -33,7 +33,7 @@ const mentorLogSchema = new Schema({
         type: Date,
       },
       gapTime: {
-        type: Number, 
+        type: Number,
       },
     },
   ],

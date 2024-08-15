@@ -1,71 +1,55 @@
 const jwt = require("jsonwebtoken");
 
 const isMentor = (req, res, next) => {
-  console.log("auth guard", req.cookies.cookieHTTP);
-  const token = req.cookies.cookieHTTP;
+  console.log("auth guard", req.session.user);
 
-  if (!token) {
-    return res.json({ message: "Authentication failed: Token not found" });
+  if (!req.session || !req.session.user) {
+    return res.json({
+      error: "Authentication error: No token found in session",
+    });
   }
 
-  jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.json({ message: "Authentication failed: Invalid token" });
-    }
+  const token = req.session.user;
 
-    if (decoded.isMentor) {
-      req.user = decoded;
-      next();
-    } else {
-      return res.json({ message: "Access denied: Requires Mentor role" });
-    }
-  });
+  if (token.isMentor) {
+    next();
+  } else {
+    return res.json({ message: "Access denied: Requires mentor role" });
+  }
 };
 
 const isMentee = (req, res, next) => {
-  const token = req.cookies.cookieHTTP;
+  console.log("auth guard", req.session.user);
 
-  if (!token) {
-    return res.json({ message: "Authentication failed: Token not found" });
+  if (!req.session || !req.session.user) {
+    return res.json({
+      error: "Authentication error: No token found in session",
+    });
   }
 
-  jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.json({ message: "Authentication failed: Invalid token" });
-    }
+  const token = req.session.user;
 
-    if (!decoded.isMentor) {
-      req.user = decoded;
-      next();
-    } else {
-      return res.json({ message: "Access denied: Requires Mentee role" });
-    }
-  });
-};
-
-const isAdmin = (req, res, next) => {
-  console.log("is admining")
-  if (res.cookies) {
-    const token = req.cookies.cookieHTTP;
-    if (!token) {
-      return res.json({ message: "Authentication failed: Token not found" });
-    }
-
-    jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err, decoded) => {
-      if (err) {
-        return res.json({ message: "Authentication failed: Invalid token" });
-      }
-
-      if (decoded.isAdmin) {
-        req.user = decoded;
-        next();
-      } else {
-        return res.json({ message: "Access denied" });
-      }
-    });
+  if (!token.isMentor) {
+    next();
   } else {
-    console.log("not found")
-    return res.json({ message: "Authentication failed: Token not found" });
+    return res.json({ message: "Access denied: Requires mentee role" });
+  }
+};
+const isAdmin = (req, res, next) => {
+  console.log("auth guard", req.session.user);
+
+  if (!req.session || !req.session.user || !req.session.user.isAdmin) {
+    return res.json({
+      error: "Authentication error: No token found in session",
+    });
+  }
+
+  const token = req.session.user;
+
+  if (token.isAdmin) {
+    next();
+  } else {
+    return res.json({ message: "Access denied: Requires Admin role" });
   }
 };
 
